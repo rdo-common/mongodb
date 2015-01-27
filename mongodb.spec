@@ -8,7 +8,7 @@
 
 Name:           mongodb
 Version:        2.6.7
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -346,6 +346,9 @@ fi
 %endif
 
 %changelog
+* Tue Jan 27 2015 Petr Machata <pmachata@redhat.com> - 2.6.7-2
+- Rebuild for boost 1.57.0
+
 * Thu Jan 16 2015 Marek Skalicky <mskalick@redhat.com> 2.6.7-1
 - Upgrade to 2.6.7
 - Fix typo errors in mongodb-test README 
