@@ -39,6 +39,8 @@ Source11:       README
 # -> upstream solved it, by default -Wno-unused-local-typedefs is used
 #Patch8:         mongodb-2.4.5-gcc48.patch
 
+Patch9:         mongodb-2.6.7-swap.patch
+
 Requires:       v8 >= 3.14.5.10
 BuildRequires:  gcc >= 4.7
 BuildRequires:  pcre-devel
@@ -116,6 +118,8 @@ the MongoDB sources.
 
 %prep
 %setup -q -n mongodb-src-r%{version}
+
+%patch9 -p1
 
 # Fixed in upstream - version 2.7.3
 sed -i -r "s|(conf.FindSysLibDep\(\"yaml\", \[\"yaml)(\"\]\))|\1-cpp\2|" SConstruct
@@ -346,8 +350,10 @@ fi
 %endif
 
 %changelog
-* Tue Jan 27 2015 Petr Machata <pmachata@redhat.com> - 2.6.7-2
+* Wed Jan 28 2015 Petr Machata <pmachata@redhat.com> - 2.6.7-2
 - Rebuild for boost 1.57.0
+- include <algorithm> in src/mongo/shell/linenoise_utf8.h
+  (mongodb-2.6.7-swap.patch)
 
 * Thu Jan 16 2015 Marek Skalicky <mskalick@redhat.com> 2.6.7-1
 - Upgrade to 2.6.7
