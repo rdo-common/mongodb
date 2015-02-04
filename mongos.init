@@ -11,7 +11,7 @@
 
 exec="/usr/bin/mongos"
 prog="mongos"
-logfile="/var/log/mongodb/mongodb-shard.log"
+logfile="/var/log/mongodb/mongos.log"
 
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 

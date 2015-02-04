@@ -8,7 +8,7 @@
 
 Name:           mongodb
 Version:        2.6.7
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -20,11 +20,11 @@ URL:            http://www.mongodb.org
 Source0:        http://fastdl.mongodb.org/src/%{pkg_name}-src-r%{version}.tar.gz
 Source1:        %{pkg_name}-tmpfile
 Source2:        %{pkg_name}.logrotate
-Source3:        %{pkg_name}.conf
+Source3:        %{daemon}.conf
 Source4:        %{daemon}.init
 Source5:        %{daemon}.service
 Source6:        %{daemon}.sysconf
-Source7:        %{pkg_name}-shard.conf
+Source7:        %{daemonshard}.conf
 Source8:        %{daemonshard}.init
 Source9:        %{daemonshard}.service
 Source10:       %{daemonshard}.sysconf
@@ -39,10 +39,14 @@ Source11:       README
 # -> upstream solved it, by default -Wno-unused-local-typedefs is used
 #Patch8:         mongodb-2.4.5-gcc48.patch
 
+# compile with boost 1.57.0
+# -> fixed by upstream in r2.7.6
 Patch9:         mongodb-2.6.7-swap.patch
 
 Requires:       v8 >= 3.14.5.10
+%ifarch %{arm}
 BuildRequires:  gcc >= 4.7
+%endif
 BuildRequires:  pcre-devel
 BuildRequires:  boost-devel >= 1.44
 # Provides tcmalloc
@@ -187,8 +191,8 @@ install -p -D -m 755 "%{SOURCE4}"  %{buildroot}%{_root_initddir}/%{daemon}
 install -p -D -m 755 "%{SOURCE8}"  %{buildroot}%{_root_initddir}/%{daemonshard}
 %endif
 install -p -D -m 644 "%{SOURCE2}"  %{buildroot}%{_sysconfdir}/logrotate.d/%{pkg_name}
-install -p -D -m 644 "%{SOURCE3}"  %{buildroot}%{_sysconfdir}/%{pkg_name}.conf
-install -p -D -m 644 "%{SOURCE7}"  %{buildroot}%{_sysconfdir}/%{pkg_name}-shard.conf
+install -p -D -m 644 "%{SOURCE3}"  %{buildroot}%{_sysconfdir}/%{daemon}.conf
+install -p -D -m 644 "%{SOURCE7}"  %{buildroot}%{_sysconfdir}/%{daemonshard}.conf
 install -p -D -m 644 "%{SOURCE6}"  %{buildroot}%{_sysconfdir}/sysconfig/%{daemon}
 install -p -D -m 644 "%{SOURCE10}" %{buildroot}%{_sysconfdir}/sysconfig/%{daemonshard}
 
@@ -325,8 +329,8 @@ fi
 %dir %attr(0750, %{pkg_name}, root) %{_localstatedir}/log/%{pkg_name}
 %dir %attr(0750, %{pkg_name}, root) %{_localstatedir}/run/%{pkg_name}
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{pkg_name}
-%config(noreplace) %{_sysconfdir}/%{pkg_name}.conf
-%config(noreplace) %{_sysconfdir}/%{pkg_name}-shard.conf
+%config(noreplace) %{_sysconfdir}/%{daemon}.conf
+%config(noreplace) %{_sysconfdir}/%{daemonshard}.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/%{daemon}
 %config(noreplace) %{_sysconfdir}/sysconfig/%{daemonshard}
 %if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
@@ -339,17 +343,20 @@ fi
 
 %ifarch %{ix86} x86_64
 %files test
+%doc %{_datadir}/%{pkg_name}-test/README
 %dir %attr(0755, %{pkg_name}, root) %{_datadir}/%{pkg_name}-test
-%dir %attr(0777, %{pkg_name}, root) %{_datadir}/%{pkg_name}-test/var
+%dir %attr(0755, %{pkg_name}, root) %{_datadir}/%{pkg_name}-test/var
 %dir %attr(0755, %{pkg_name}, root) %{_datadir}/%{pkg_name}-test/jstests
-%{_datadir}/%{name}-test/smoke.*
-%{_datadir}/%{name}-test/cleanbb.*
-%{_datadir}/%{name}-test/utils.*
-%{_datadir}/%{name}-test/jstests/*
-%{_datadir}/%{name}-test/README
+%{_datadir}/%{pkg_name}-test/smoke.*
+%{_datadir}/%{pkg_name}-test/cleanbb.*
+%{_datadir}/%{pkg_name}-test/utils.*
+%{_datadir}/%{pkg_name}-test/jstests/*
 %endif
 
 %changelog
+* Wed Feb 4 2015 Marek Skalicky <mskalick@redhat.com> - 2.6.7-3
+- Changed names of configuration and log files
+
 * Wed Jan 28 2015 Petr Machata <pmachata@redhat.com> - 2.6.7-2
 - Rebuild for boost 1.57.0
 - include <algorithm> in src/mongo/shell/linenoise_utf8.h

@@ -11,7 +11,7 @@
 
 exec="/usr/bin/mongod"
 prog="mongod"
-logfile="/var/log/mongodb/mongodb.log"
+logfile="/var/log/mongodb/mongod.log"
 
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 
