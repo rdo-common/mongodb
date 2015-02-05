@@ -288,6 +288,41 @@ if [ "$1" -ge 1 ] ; then
 fi
 
 
+# Make rename of config files transparent and effortless
+%triggerpostun server -- %{name}-server < 2.6.7-3
+if [ -f %{_sysconfdir}/sysconfig/%{daemon}.rpmsave ]; then
+  mv %{_sysconfdir}/sysconfig/%{daemon}          %{_sysconfdir}/sysconfig/%{daemon}.rpmnew
+  mv %{_sysconfdir}/sysconfig/%{daemon}.rpmsave  %{_sysconfdir}/sysconfig/%{daemon}
+  if [ -f %{_sysconfdir}/%{pkg_name}.conf.rpmsave ]; then
+    mv %{_sysconfdir}/%{daemon}.conf            %{_sysconfdir}/%{daemon}.conf.rpmnew
+    mv %{_sysconfdir}/%{pkg_name}.conf.rpmsave  %{_sysconfdir}/%{pkg_name}.conf
+  else
+    mv %{_sysconfdir}/%{daemon}.conf            %{_sysconfdir}/%{pkg_name}.conf
+  fi
+else
+  if [ -f %{_sysconfdir}/%{pkg_name}.conf.rpmsave ]; then
+    mv %{_sysconfdir}/%{daemon}.conf            %{_sysconfdir}/%{daemon}.conf.rpmnew
+    mv %{_sysconfdir}/%{pkg_name}.conf.rpmsave  %{_sysconfdir}/%{daemon}.conf
+  fi
+fi
+
+if [ -f %{_sysconfdir}/sysconfig/%{daemonshard}.rpmsave ]; then
+  mv %{_sysconfdir}/sysconfig/%{daemonshard}          %{_sysconfdir}/sysconfig/%{daemonshard}.rpmnew
+  mv %{_sysconfdir}/sysconfig/%{daemonshard}.rpmsave  %{_sysconfdir}/sysconfig/%{daemonshard}
+  if [ -f %{_sysconfdir}/%{pkg_name}-shard.conf.rpmsave ]; then
+    mv %{_sysconfdir}/%{daemonshard}.conf            %{_sysconfdir}/%{daemonshard}.conf.rpmnew
+    mv %{_sysconfdir}/%{pkg_name}-shard.conf.rpmsave  %{_sysconfdir}/%{pkg_name}-shard.conf
+  else
+    mv %{_sysconfdir}/%{daemonshard}.conf            %{_sysconfdir}/%{pkg_name}-shard.conf
+  fi
+else
+  if [ -f %{_sysconfdir}/%{pkg_name}-shard.conf.rpmsave ]; then
+    mv %{_sysconfdir}/%{daemonshard}.conf            %{_sysconfdir}/%{daemonshard}.conf.rpmnew
+    mv %{_sysconfdir}/%{pkg_name}-shard.conf.rpmsave  %{_sysconfdir}/%{daemonshard}.conf
+  fi
+fi
+
+
 %files
 %{!?_licensedir:%global license %%doc}
 %license GNU-AGPL-3.0.txt APACHE-2.0.txt
@@ -362,9 +397,9 @@ fi
 - include <algorithm> in src/mongo/shell/linenoise_utf8.h
   (mongodb-2.6.7-swap.patch)
 
-* Thu Jan 16 2015 Marek Skalicky <mskalick@redhat.com> 2.6.7-1
+* Fri Jan 16 2015 Marek Skalicky <mskalick@redhat.com> 2.6.7-1
 - Upgrade to 2.6.7
-- Fix typo errors in mongodb-test README 
+- Fix typo errors in mongodb-test README
 
 * Thu Jan 15 2015 Marek Skalicky <mskalick@redhat.com> 2.6.6-4
 - Changed unix socket location to /var/run/mongodb/ (#1047858)
