@@ -390,6 +390,7 @@ fi
 
 %changelog
 * Wed Feb 4 2015 Marek Skalicky <mskalick@redhat.com> - 2.6.7-3
+- Changed permissions of mognodb-test/var directory to 755
 - Changed names of configuration and log files
 
 * Wed Jan 28 2015 Petr Machata <pmachata@redhat.com> - 2.6.7-2
