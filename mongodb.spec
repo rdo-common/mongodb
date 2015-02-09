@@ -140,7 +140,6 @@ sed -i 's/\r//' README
 # disable propagation of $TERM env var into the Scons build system
 sed -i -r "s|(for key in \('HOME'), 'TERM'(\):)|\1\2|" SConstruct
 
-
 # disable run test and perftest programs
 sed -i -r "s|^([[:space:]]*)(if suite == 'test':)|\1\2\n\1    continue|"      buildscripts/smoke.py
 sed -i -r "s|^([[:space:]]*)(elif suite == 'perf':)|\1\2\n\1    continue|"    buildscripts/smoke.py
@@ -164,6 +163,7 @@ scons all \
         --usev8 \
         --nostrip \
         --ssl \
+        --disable-warnings-as-errors
 
 
 %install
@@ -175,6 +175,7 @@ scons install \
         --usev8 \
         --nostrip \
         --ssl \
+        --disable-warnings-as-errors \
         --prefix=%{buildroot}%{_prefix}
 
 mkdir -p %{buildroot}%{_sharedstatedir}/%{pkg_name}
@@ -390,6 +391,7 @@ fi
 
 %changelog
 * Wed Feb 4 2015 Marek Skalicky <mskalick@redhat.com> - 2.6.7-3
+- Disabled -Werror (dont't build with gcc 5.0)
 - Changed permissions of mognodb-test/var directory to 755
 - Changed names of configuration and log files
 
