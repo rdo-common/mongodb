@@ -5,8 +5,8 @@ After=syslog.target network.target
 [Service]
 Type=forking
 User=mongodb
-PIDFile=/var/run/mongodb/mongod.pid
 EnvironmentFile=/etc/sysconfig/mongod
+PIDFile=${PIDFILE-/var/run/mongodb/mongod.pid}
 ExecStart=/usr/bin/mongod $OPTIONS run
 PrivateTmp=true
 LimitNOFILE=64000

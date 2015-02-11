@@ -1,21 +1,21 @@
 #!/bin/sh
 #
-# mongos       init file for starting up the MongoDB shard server
+# mongos       init file for starting up the mongoDB shard server
 #
 # chkconfig:   - 90 10
-# description: Starts and stops the MongoDB shard daemon that handles all \
+# description: Starts and stops the mongoDB shard daemon that handles all \
 #              database requests.
 
 # Source function library.
 . /etc/rc.d/init.d/functions
 
-exec="/usr/bin/mongos"
 prog="mongos"
-logfile="/var/log/mongodb/mongos.log"
+exec="/usr/bin/$prog"
+logfile=${LOGFILE-/var/log/mongodb/$prog.log}
 
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 
-pidfile=${PIDFILE-/var/run/mongodb/mongos.pid}
+pidfile=${PIDFILE-/var/run/mongodb/$prog.pid}
 options="$OPTIONS"
 lockfile="/var/lock/subsys/$prog"
 
@@ -95,13 +95,8 @@ killproc_nice() {
 
 start() {
     [ -x $exec ] || exit 5
-    printf '%s' $"Starting $prog: "
-    # why the hell is this not checked in /etc/rc.d/init.d/functions ?
-    [ "$(id -u)" -eq 0 ] || exit 4
-    # FIXME check mongod source - if parent waits after forking for childs
-    #   message about proper initialization
-    daemon --pidfile="$pidfile" --user mongodb \
-            "$exec $options >> $logfile 2>&1"
+    echo -n $"Starting $prog: "
+    daemon --pidfile=${pidfile} --user mongodb "$exec $options >> $logfile 2>&1"
     retval=$?
     echo
     [ $retval -eq 0 ] && touch $lockfile
@@ -109,7 +104,7 @@ start() {
 }
 
 stop() {
-    printf '%s' $"Stopping $prog: "
+    echo -n $"Stopping $prog: "
     killproc_nice -p ${pidfile} -d 300 $prog
     retval=$?
     echo
@@ -138,6 +133,7 @@ rh_status() {
 rh_status_q() {
     rh_status >/dev/null 2>&1
 }
+
 
 case "$1" in
     start)

@@ -1,1 +1,1 @@
-OPTIONS="-f /etc/mongos.conf"
+OPTIONS="--quiet -f /etc/mongos.conf"
