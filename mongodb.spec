@@ -291,9 +291,7 @@ fi
 
 # Make rename of config files transparent and effortless
 %triggerpostun server -- %{name}-server < 2.6.7-3
-if [ -f %{_sysconfdir}/sysconfig/%{daemon}.rpmsave ]; then
-  mv %{_sysconfdir}/sysconfig/%{daemon}          %{_sysconfdir}/sysconfig/%{daemon}.rpmnew
-  mv %{_sysconfdir}/sysconfig/%{daemon}.rpmsave  %{_sysconfdir}/sysconfig/%{daemon}
+if [ -f %{_sysconfdir}/sysconfig/%{daemon}.rpmnew ]; then
   if [ -f %{_sysconfdir}/%{pkg_name}.conf.rpmsave ]; then
     mv %{_sysconfdir}/%{daemon}.conf            %{_sysconfdir}/%{daemon}.conf.rpmnew
     mv %{_sysconfdir}/%{pkg_name}.conf.rpmsave  %{_sysconfdir}/%{pkg_name}.conf
@@ -307,9 +305,7 @@ else
   fi
 fi
 
-if [ -f %{_sysconfdir}/sysconfig/%{daemonshard}.rpmsave ]; then
-  mv %{_sysconfdir}/sysconfig/%{daemonshard}          %{_sysconfdir}/sysconfig/%{daemonshard}.rpmnew
-  mv %{_sysconfdir}/sysconfig/%{daemonshard}.rpmsave  %{_sysconfdir}/sysconfig/%{daemonshard}
+if [ -f %{_sysconfdir}/sysconfig/%{daemonshard}.rpmnew ]; then
   if [ -f %{_sysconfdir}/%{pkg_name}-shard.conf.rpmsave ]; then
     mv %{_sysconfdir}/%{daemonshard}.conf            %{_sysconfdir}/%{daemonshard}.conf.rpmnew
     mv %{_sysconfdir}/%{pkg_name}-shard.conf.rpmsave  %{_sysconfdir}/%{pkg_name}-shard.conf
