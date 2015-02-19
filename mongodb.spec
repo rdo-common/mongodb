@@ -1,4 +1,4 @@
-#%global _hardened_build 1
+%global _hardened_build 1
 # for better compatibility with SCL spec file
 %global pkg_name mongodb
 # mongod daemon
@@ -129,10 +129,10 @@ the MongoDB sources.
 sed -i -r "s|(conf.FindSysLibDep\(\"yaml\", \[\"yaml)(\"\]\))|\1-cpp\2|" SConstruct
 
 # Use optflags and __global_ldflags, disable -fPIC
-#(opt=$(echo "%{?optflags}" | sed -r -e 's| |","|g' )
-#sed -i -r -e "s|(CCFLAGS=\[)\"-fPIC\"|\1\"$opt\"|" SConstruct)
-#(opt=$(echo "%{?__global_ldflags}" | sed -r -e 's| |","|g' )
-#sed -i -r -e "s|(LINKFLAGS=\[)\"-fPIC\"|\1\"$opt\"|" SConstruct)
+(opt=$(echo "%{?optflags}" | sed -r -e 's| |","|g' )
+sed -i -r -e "s|(CCFLAGS=\[)\"-fPIC\"|\1\"$opt\"|" SConstruct)
+(opt=$(echo "%{?__global_ldflags}" | sed -r -e 's| |","|g' )
+sed -i -r -e "s|(LINKFLAGS=\[)\"-fPIC\"|\1\"$opt\"|" SConstruct)
 
 # CRLF -> LF
 sed -i 's/\r//' README
@@ -387,6 +387,7 @@ fi
 
 %changelog
 * Thu Feb 19 2015 Marek Skalicky <mskalick@redhat.com> - 2.6.7-5
+- Enabled hardened build
 - Fixed init scripts to respect LSB (#1075736)
 
 * Mon Feb 16 2015 Marek Skalicky <mskalick@redhat.com> - 2.6.7-4
