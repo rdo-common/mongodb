@@ -95,6 +95,7 @@ killproc_nice() {
 
 start() {
     [ -x $exec ] || exit 5
+    [ "$(id -u)" -eq 0 ] || exit 4
     echo -n $"Starting $prog: "
     daemon --pidfile=${pidfile} --user mongodb "$exec $options run >> $logfile 2>&1"
     retval=$?
@@ -104,6 +105,7 @@ start() {
 }
 
 stop() {
+    [ "$(id -u)" -eq 0 ] || exit 4
     echo -n $"Stopping $prog: "
     killproc_nice -p ${pidfile} -d 300 $prog
     retval=$?

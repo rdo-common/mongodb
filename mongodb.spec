@@ -8,7 +8,7 @@
 
 Name:           mongodb
 Version:        2.6.7
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -386,6 +386,9 @@ fi
 %endif
 
 %changelog
+* Thu Feb 19 2015 Marek Skalicky <mskalick@redhat.com> - 2.6.7-5
+- Fixed init scripts to respect LSB (#1075736)
+
 * Mon Feb 16 2015 Marek Skalicky <mskalick@redhat.com> - 2.6.7-4
 - Revert bind_ip change in configuration files from version 2.6.6-4
 
