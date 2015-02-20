@@ -129,7 +129,7 @@ the MongoDB sources.
 sed -i -r "s|(conf.FindSysLibDep\(\"yaml\", \[\"yaml)(\"\]\))|\1-cpp\2|" SConstruct
 
 # Use optflags and __global_ldflags, disable -fPIC
-(opt=$(echo "%{?optflags}" | sed -r -e 's| |","|g' )
+(opt=$(echo "%{?optflags}" | sed -r -e 's|-g |-g1 |g' | sed -r -e 's| |","|g' )
 sed -i -r -e "s|(CCFLAGS=\[)\"-fPIC\"|\1\"$opt\"|" SConstruct)
 (opt=$(echo "%{?__global_ldflags}" | sed -r -e 's| |","|g' )
 sed -i -r -e "s|(LINKFLAGS=\[)\"-fPIC\"|\1\"$opt\"|" SConstruct)
