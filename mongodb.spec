@@ -7,8 +7,8 @@
 %global daemonshard mongos
 
 Name:           mongodb
-Version:        2.6.7
-Release:        5%{?dist}
+Version:        3.0.0
+Release:        1%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -30,34 +30,20 @@ Source9:        %{daemonshard}.service
 Source10:       %{daemonshard}.sysconf
 Source11:       README
 
-# https://bugzilla.redhat.com/show_bug.cgi?id=958014
-# need to work on getting this properly patched upstream
-# -> same work is made in prep section
-#Patch7:         mongodb-2.4.5-pass-flags.patch
 
-# compile with GCC 4.8
-# -> upstream solved it, by default -Wno-unused-local-typedefs is used
-#Patch8:         mongodb-2.4.5-gcc48.patch
-
-# compile with boost 1.57.0
-# -> fixed by upstream in r2.7.6
-Patch9:         mongodb-2.6.7-swap.patch
-
-Requires:       v8 >= 3.14.5.10
-%ifarch %{arm}
-BuildRequires:  gcc >= 4.7
-%endif
+BuildRequires:  gcc >= 4.8.2
 BuildRequires:  pcre-devel
 BuildRequires:  boost-devel >= 1.44
 # Provides tcmalloc
 BuildRequires:  gperftools-devel
 BuildRequires:  snappy-devel
-BuildRequires:  v8-devel
+BuildRequires:  v8-devel >= 3.14.5.10
 BuildRequires:  yaml-cpp-devel
 BuildRequires:  scons
 BuildRequires:  openssl-devel
 BuildRequires:  libpcap-devel
 BuildRequires:  libstemmer-devel
+BuildRequires:  zlib-devel
 %if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
 BuildRequires:  systemd
 %endif
@@ -123,10 +109,8 @@ the MongoDB sources.
 %prep
 %setup -q -n mongodb-src-r%{version}
 
-%patch9 -p1
-
-# Fixed in upstream - version 2.7.3
-sed -i -r "s|(conf.FindSysLibDep\(\"yaml\", \[\"yaml)(\"\]\))|\1-cpp\2|" SConstruct
+# https://jira.mongodb.org/browse/SERVER-17460
+sed -i -r "s|LIBDEPS_v8_SYSLIBDEP|LIBDEPS_V8_SYSLIBDEP|" src/third_party/SConscript
 
 # Use optflags and __global_ldflags, disable -fPIC
 (opt=$(echo "%{?optflags}" | sed -r -e 's|-g |-g1 |g' | sed -r -e 's| |","|g' )
@@ -160,7 +144,7 @@ failfile = os.path.join\(os.path.join\(mongo_repo, smoke_db_prefix\), 'failfile.
 scons all \
         %{?_smp_mflags} \
         --use-system-all  \
-        --usev8 \
+        --wiredtiger=off \
         --nostrip \
         --ssl \
         --disable-warnings-as-errors
@@ -172,7 +156,7 @@ scons all \
 scons install \
         %{?_smp_mflags} \
         --use-system-all \
-        --usev8 \
+        --wiredtiger=off \
         --nostrip \
         --ssl \
         --disable-warnings-as-errors \
@@ -386,6 +370,9 @@ fi
 %endif
 
 %changelog
+* Thu Feb 26 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.0-1
+- Upgrade to version 3.0.0
+
 * Thu Feb 19 2015 Marek Skalicky <mskalick@redhat.com> - 2.6.7-5
 - Enabled hardened build
 - Fixed init scripts to respect LSB (#1075736)
