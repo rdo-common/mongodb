@@ -311,7 +311,6 @@ fi
 %{_bindir}/mongo
 %{_bindir}/mongoperf
 %{_bindir}/mongosniff
-%{_bindir}/mongobridge
 
 %{_mandir}/man1/mongo.1*
 %{_mandir}/man1/mongoperf.1*
