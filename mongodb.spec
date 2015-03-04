@@ -308,31 +308,15 @@ fi
 %{!?_licensedir:%global license %%doc}
 %license GNU-AGPL-3.0.txt APACHE-2.0.txt
 %doc README
-%{_bindir}/bsondump
 %{_bindir}/mongo
-%{_bindir}/mongodump
-%{_bindir}/mongoexport
-%{_bindir}/mongofiles
-%{_bindir}/mongoimport
-%{_bindir}/mongooplog
 %{_bindir}/mongoperf
-%{_bindir}/mongorestore
 %{_bindir}/mongosniff
-%{_bindir}/mongostat
-%{_bindir}/mongotop
+%{_bindir}/mongobridge
 
-%{_mandir}/man1/bsondump.1*
 %{_mandir}/man1/mongo.1*
-%{_mandir}/man1/mongodump.1*
-%{_mandir}/man1/mongoexport.1*
-%{_mandir}/man1/mongofiles.1*
-%{_mandir}/man1/mongoimport.1*
-%{_mandir}/man1/mongooplog.1*
 %{_mandir}/man1/mongoperf.1*
-%{_mandir}/man1/mongorestore.1*
 %{_mandir}/man1/mongosniff.1*
-%{_mandir}/man1/mongostat.1*
-%{_mandir}/man1/mongotop.1*
+
 
 
 %files server
@@ -340,7 +324,6 @@ fi
 %{_bindir}/mongos
 %{_mandir}/man1/mongod.1*
 %{_mandir}/man1/mongos.1*
-# TODO
 %dir %attr(0750, %{pkg_name}, root) %{_sharedstatedir}/%{pkg_name}
 %dir %attr(0750, %{pkg_name}, root) %{_localstatedir}/log/%{pkg_name}
 %dir %attr(0750, %{pkg_name}, root) %{_localstatedir}/run/%{pkg_name}
@@ -370,7 +353,7 @@ fi
 %endif
 
 %changelog
-* Thu Feb 26 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.0-1
+* Wed Mar 4 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.0-1
 - Upgrade to version 3.0.0
 
 * Thu Feb 19 2015 Marek Skalicky <mskalick@redhat.com> - 2.6.7-5
