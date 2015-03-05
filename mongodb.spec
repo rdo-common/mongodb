@@ -182,7 +182,11 @@ install -p -D -m 644 "%{SOURCE6}"  %{buildroot}%{_sysconfdir}/sysconfig/%{daemon
 install -p -D -m 644 "%{SOURCE10}" %{buildroot}%{_sysconfdir}/sysconfig/%{daemonshard}
 
 install -d -m 755            %{buildroot}%{_mandir}/man1
-install -p -m 644 debian/*.1 %{buildroot}%{_mandir}/man1/
+install -p -m 644 debian/mongo.1*      %{buildroot}%{_mandir}/man1/
+install -p -m 644 debian/mongoperf.1*  %{buildroot}%{_mandir}/man1/
+install -p -m 644 debian/mongosniff.1* %{buildroot}%{_mandir}/man1/
+install -p -m 644 debian/mongod.1*     %{buildroot}%{_mandir}/man1/
+install -p -m 644 debian/mongos.1*     %{buildroot}%{_mandir}/man1/
 
 %ifarch %{ix86} x86_64
 mkdir -p %{buildroot}%{_datadir}/%{pkg_name}-test
