@@ -153,7 +153,12 @@ scons all \
         --variant-dir=build%{?dist} \
         --nostrip \
         --ssl \
-        --disable-warnings-as-errors
+        --disable-warnings-as-errors \
+%ifarch x86_64
+        --wiredtiger=on
+%else
+        --wiredtiger=off
+%endif
 
 
 %install
@@ -164,7 +169,12 @@ scons install \
         --nostrip \
         --ssl \
         --disable-warnings-as-errors \
-        --prefix=%{buildroot}%{_prefix}
+        --prefix=%{buildroot}%{_prefix} \
+%ifarch x86_64
+        --wiredtiger=on
+%else
+        --wiredtiger=off
+%endif
 
 mkdir -p %{buildroot}%{_sharedstatedir}/%{pkg_name}
 mkdir -p %{buildroot}%{_localstatedir}/log/%{pkg_name}
