@@ -44,6 +44,9 @@ BuildRequires:  openssl-devel
 BuildRequires:  libpcap-devel
 BuildRequires:  libstemmer-devel
 BuildRequires:  zlib-devel
+%ifarch x86_64
+BuildRequires:  wiredtiger-devel
+%endif
 %if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
 BuildRequires:  systemd
 %endif
@@ -138,25 +141,26 @@ sed -i -r "s|(smoke_db_prefix = ')'|\1var'|"                           buildscri
 sed -i -r "s|^([[:space:]]*)(set_globals\(options, tests\))$|\1\2\n\1global failfile\n\1\
 failfile = os.path.join\(os.path.join\(mongo_repo, smoke_db_prefix\), 'failfile.smoke'\)|"    buildscripts/smoke.py
 
+# Disable optimization for s2 library
+# https://jira.mongodb.org/browse/SERVER-17511
+sed -i -r "s|(env.Append\(CCFLAGS=\['-DDEBUG_MODE=false')(\]\))|\1,'-O0'\2|"  src/third_party/s2/SConscript
 
 %build
 # see add_option() calls in SConstruct for options
 scons all \
         %{?_smp_mflags} \
-        --use-system-all  \
-        --wiredtiger=off \
+        --use-system-all \
+        --variant-dir=build%{?dist} \
         --nostrip \
         --ssl \
         --disable-warnings-as-errors
 
 
 %install
-# NOTE: If install flags are not EXACTLY the same as in %%build,
-#   mongodb will be built twice!
 scons install \
         %{?_smp_mflags} \
         --use-system-all \
-        --wiredtiger=off \
+        --variant-dir=build%{?dist} \
         --nostrip \
         --ssl \
         --disable-warnings-as-errors \
@@ -182,11 +186,11 @@ install -p -D -m 644 "%{SOURCE6}"  %{buildroot}%{_sysconfdir}/sysconfig/%{daemon
 install -p -D -m 644 "%{SOURCE10}" %{buildroot}%{_sysconfdir}/sysconfig/%{daemonshard}
 
 install -d -m 755            %{buildroot}%{_mandir}/man1
-install -p -m 644 debian/mongo.1*      %{buildroot}%{_mandir}/man1/
-install -p -m 644 debian/mongoperf.1*  %{buildroot}%{_mandir}/man1/
-install -p -m 644 debian/mongosniff.1* %{buildroot}%{_mandir}/man1/
-install -p -m 644 debian/mongod.1*     %{buildroot}%{_mandir}/man1/
-install -p -m 644 debian/mongos.1*     %{buildroot}%{_mandir}/man1/
+install -p -m 644 debian/mongo.1      %{buildroot}%{_mandir}/man1/
+install -p -m 644 debian/mongoperf.1  %{buildroot}%{_mandir}/man1/
+install -p -m 644 debian/mongosniff.1 %{buildroot}%{_mandir}/man1/
+install -p -m 644 debian/mongod.1     %{buildroot}%{_mandir}/man1/
+install -p -m 644 debian/mongos.1     %{buildroot}%{_mandir}/man1/
 
 %ifarch %{ix86} x86_64
 mkdir -p %{buildroot}%{_datadir}/%{pkg_name}-test
