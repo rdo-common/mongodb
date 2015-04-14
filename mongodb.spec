@@ -7,7 +7,7 @@
 %global daemonshard mongos
 
 Name:           mongodb
-Version:        3.0.0
+Version:        3.0.2
 Release:        1%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
@@ -111,9 +111,6 @@ the MongoDB sources.
 
 %prep
 %setup -q -n mongodb-src-r%{version}
-
-# https://jira.mongodb.org/browse/SERVER-17460
-sed -i -r "s|LIBDEPS_v8_SYSLIBDEP|LIBDEPS_V8_SYSLIBDEP|" src/third_party/SConscript
 
 # Use optflags and __global_ldflags, disable -fPIC
 (opt=$(echo "%{?optflags}" | sed -r -e 's|-g |-g1 |g' | sed -r -e 's| |","|g' )
@@ -370,6 +367,9 @@ fi
 %endif
 
 %changelog
+* Tue Apr 14 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.2-1
+- Upgrade to version 3.0.2
+
 * Wed Mar 4 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.0-1
 - Upgrade to version 3.0.0
 
