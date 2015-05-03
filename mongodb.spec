@@ -8,7 +8,7 @@
 
 Name:           mongodb
 Version:        3.0.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -367,6 +367,9 @@ fi
 %endif
 
 %changelog
+* Sun May 03 2015 Kalev Lember <kalevlember@gmail.com> - 3.0.2-2
+- Rebuilt for GCC 5 C++11 ABI change
+
 * Tue Apr 14 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.2-1
 - Upgrade to version 3.0.2
 
