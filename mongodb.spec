@@ -112,12 +112,6 @@ the MongoDB sources.
 %prep
 %setup -q -n mongodb-src-r%{version}
 
-# Use optflags and __global_ldflags, disable -fPIC
-(opt=$(echo "%{?optflags}" | sed -r -e 's|-g |-g1 |g' | sed -r -e 's| |","|g' )
-sed -i -r -e "s|(CCFLAGS=\[)\"-fPIC\"|\1\"$opt\"|" SConstruct)
-(opt=$(echo "%{?__global_ldflags}" | sed -r -e 's| |","|g' )
-sed -i -r -e "s|(LINKFLAGS=\[)\"-fPIC\"|\1\"$opt\"|" SConstruct)
-
 # CRLF -> LF
 sed -i 's/\r//' README
 
@@ -143,7 +137,7 @@ failfile = os.path.join\(os.path.join\(mongo_repo, smoke_db_prefix\), 'failfile.
 sed -i -r "s|(env.Append\(CCFLAGS=\['-DDEBUG_MODE=false')(\]\))|\1,'-O0'\2|"  src/third_party/s2/SConscript
 
 %build
-# see add_option() calls in SConstruct for options
+# see output of "scons --help" for options
 scons all \
         %{?_smp_mflags} \
         --use-system-all \
@@ -152,10 +146,11 @@ scons all \
         --ssl \
         --disable-warnings-as-errors \
 %ifarch x86_64
-        --wiredtiger=on
+        --wiredtiger=on \
 %else
-        --wiredtiger=off
+        --wiredtiger=off \
 %endif
+        CCFLAGS="%{?optflags}" LINKFLAGS="%{?__global_ldflags}"
 
 
 %install
@@ -168,10 +163,11 @@ scons install \
         --disable-warnings-as-errors \
         --prefix=%{buildroot}%{_prefix} \
 %ifarch x86_64
-        --wiredtiger=on
+        --wiredtiger=on \
 %else
-        --wiredtiger=off
+        --wiredtiger=off \
 %endif
+        CCFLAGS="%{?optflags}" LINKFLAGS="%{?__global_ldflags}"
 
 mkdir -p %{buildroot}%{_sharedstatedir}/%{pkg_name}
 mkdir -p %{buildroot}%{_localstatedir}/log/%{pkg_name}
@@ -192,7 +188,7 @@ install -p -D -m 644 "%{SOURCE7}"  %{buildroot}%{_sysconfdir}/%{daemonshard}.con
 install -p -D -m 644 "%{SOURCE6}"  %{buildroot}%{_sysconfdir}/sysconfig/%{daemon}
 install -p -D -m 644 "%{SOURCE10}" %{buildroot}%{_sysconfdir}/sysconfig/%{daemonshard}
 
-install -d -m 755            %{buildroot}%{_mandir}/man1
+install -d -m 755                     %{buildroot}%{_mandir}/man1
 install -p -m 644 debian/mongo.1      %{buildroot}%{_mandir}/man1/
 install -p -m 644 debian/mongoperf.1  %{buildroot}%{_mandir}/man1/
 install -p -m 644 debian/mongosniff.1 %{buildroot}%{_mandir}/man1/
@@ -202,13 +198,13 @@ install -p -m 644 debian/mongos.1     %{buildroot}%{_mandir}/man1/
 %ifarch %{ix86} x86_64
 mkdir -p %{buildroot}%{_datadir}/%{pkg_name}-test
 mkdir -p %{buildroot}%{_datadir}/%{pkg_name}-test/var
-install -p -D -m 555    buildscripts/smoke.py   %{buildroot}%{_datadir}/%{pkg_name}-test/
-install -p -D -m 444    buildscripts/cleanbb.py %{buildroot}%{_datadir}/%{pkg_name}-test/
-install -p -D -m 444    buildscripts/utils.py   %{buildroot}%{_datadir}/%{pkg_name}-test/
+install -p -D -m 555 buildscripts/smoke.py   %{buildroot}%{_datadir}/%{pkg_name}-test/
+install -p -D -m 444 buildscripts/cleanbb.py %{buildroot}%{_datadir}/%{pkg_name}-test/
+install -p -D -m 444 buildscripts/utils.py   %{buildroot}%{_datadir}/%{pkg_name}-test/
 
-cp -R                   jstests                 %{buildroot}%{_datadir}/%{pkg_name}-test/
+cp -R                jstests                 %{buildroot}%{_datadir}/%{pkg_name}-test/
 
-install -p -D -m 444    "%{SOURCE11}"           %{buildroot}%{_datadir}/%{pkg_name}-test/
+install -p -D -m 444 "%{SOURCE11}"           %{buildroot}%{_datadir}/%{pkg_name}-test/
 
 
 %check
@@ -367,6 +363,9 @@ fi
 %endif
 
 %changelog
+* Tue May 19 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.2-3
+- Use variables instead of changing SConstruct
+
 * Sun May 03 2015 Kalev Lember <kalevlember@gmail.com> - 3.0.2-2
 - Rebuilt for GCC 5 C++11 ABI change
 
