@@ -7,8 +7,8 @@
 %global daemonshard mongos
 
 Name:           mongodb
-Version:        3.0.2
-Release:        2%{?dist}
+Version:        3.0.3
+Release:        1%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -117,10 +117,6 @@ sed -i 's/\r//' README
 
 # disable propagation of $TERM env var into the Scons build system
 sed -i -r "s|(for key in \('HOME'), 'TERM'(\):)|\1\2|" SConstruct
-
-# disable run test and perftest programs
-sed -i -r "s|^([[:space:]]*)(if suite == 'test':)|\1\2\n\1    continue|"      buildscripts/smoke.py
-sed -i -r "s|^([[:space:]]*)(elif suite == 'perf':)|\1\2\n\1    continue|"    buildscripts/smoke.py
 
 # by default use system mongod, mongos and mongo binaries
 sed -i -r "s|(default=os.path.join\()mongo_repo(, 'mongod'\))|\1'%{_bindir}'\2|"   buildscripts/smoke.py
@@ -367,6 +363,9 @@ fi
 %endif
 
 %changelog
+* Tue May 19 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.3-1
+- Upgrade to version 3.0.3
+
 * Tue May 19 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.2-3
 - Change log settigs (logappend=true)
 - Run dbtest suite in check section
