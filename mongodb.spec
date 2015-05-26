@@ -210,8 +210,14 @@ install -p -D -m 444 "%{SOURCE11}"           %{buildroot}%{_datadir}/%{pkg_name}
 %check
 # More info about testing:
 # http://www.mongodb.org/about/contributors/tutorial/test-the-mongodb-server/
-# Run new-style unit tests (*_test files)
 cd %{_builddir}/%{pkg_name}-src-r%{version}
+mkdir ./var
+
+# Run old-style heavy unit tests (dbtest binary)
+mkdir ./var/dbtest
+./dbtest --dbpath ./var/dbtest
+
+# Run new-style unit tests (*_test files)
 while read unittest
 do
     ./$unittest
@@ -222,7 +228,6 @@ do
 done < ./build/unittests.txt
 
 # Run JavaScript integration tests
-mkdir ./var
 buildscripts/smoke.py --smoke-db-prefix ./var --continue-on-failure --mongo=%{buildroot}%{_bindir}/mongo --mongod=%{buildroot}%{_bindir}/%{daemon} --nopreallocj jsCore
 rm -Rf ./var
 %endif
@@ -235,7 +240,6 @@ rm -Rf ./var
 
 %pre server
 getent group  %{pkg_name} >/dev/null || groupadd -r %{pkg_name}
-# TODO _sharedstatedir
 getent passwd %{pkg_name} >/dev/null || useradd -r -g %{pkg_name} -u 184 \
   -d %{_localstatedir}/lib/%{pkg_name} -s /sbin/nologin \
   -c "MongoDB Database Server" %{pkg_name}
@@ -364,6 +368,8 @@ fi
 
 %changelog
 * Tue May 19 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.2-3
+- Change log settigs (logappend=true)
+- Run dbtest suite in check section
 - Use variables instead of changing SConstruct
 
 * Sun May 03 2015 Kalev Lember <kalevlember@gmail.com> - 3.0.2-2
