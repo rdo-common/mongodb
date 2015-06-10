@@ -211,7 +211,7 @@ mkdir ./var
 
 # Run old-style heavy unit tests (dbtest binary)
 mkdir ./var/dbtest
-./dbtest --dbpath ./var/dbtest
+./dbtest --dbpath `pwd`/var/dbtest
 
 # Run new-style unit tests (*_test files)
 while read unittest
@@ -363,7 +363,8 @@ fi
 %endif
 
 %changelog
-* Tue May 19 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.3-1
+* Wed Jun 10 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.3-1
+- Fixed dbtest argument passing
 - Upgrade to version 3.0.3
 
 * Tue May 19 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.2-3
