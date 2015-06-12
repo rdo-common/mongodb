@@ -8,7 +8,7 @@
 
 Name:           mongodb
 Version:        3.0.3
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -31,27 +31,24 @@ Source10:       %{daemonshard}.sysconf
 Source11:       README
 
 
-BuildRequires:  gcc >= 4.8.2
-BuildRequires:  pcre-devel
 BuildRequires:  boost-devel >= 1.44
 # Provides tcmalloc
 BuildRequires:  gperftools-devel
+BuildRequires:  libpcap-devel
+BuildRequires:  libstemmer-devel
+BuildRequires:  openssl-devel
+BuildRequires:  pcre-devel
+BuildRequires:  python-pymongo
+BuildRequires:  scons
 BuildRequires:  snappy-devel
 BuildRequires:  v8-devel >= 3.14.5.10
 BuildRequires:  yaml-cpp-devel
-BuildRequires:  scons
-BuildRequires:  openssl-devel
-BuildRequires:  libpcap-devel
-BuildRequires:  libstemmer-devel
 BuildRequires:  zlib-devel
 %ifarch x86_64
 BuildRequires:  wiredtiger-devel
 %endif
 %if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
 BuildRequires:  systemd
-%endif
-%ifarch %{ix86} x86_64
-BuildRequires:  python-pymongo
 %endif
 
 # Mongodb must run on a little-endian CPU (see bug #630898)
@@ -363,6 +360,10 @@ fi
 %endif
 
 %changelog
+* Fri Jun 12 2015 Peter Robinson <pbrobinson@fedoraproject.org> 3.0.3-2
+- All architectures have python-pymongo
+- BuildReq cleanups
+
 * Wed Jun 10 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.3-1
 - Fixed dbtest argument passing
 - Upgrade to version 3.0.3
