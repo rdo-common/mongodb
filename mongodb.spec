@@ -7,8 +7,8 @@
 %global daemonshard mongos
 
 Name:           mongodb
-Version:        3.0.3
-Release:        2%{?dist}
+Version:        3.0.4
+Release:        1%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -360,6 +360,9 @@ fi
 %endif
 
 %changelog
+* Wed Jun 17 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.4-1
+- Upgrade to version 3.0.4
+
 * Fri Jun 12 2015 Peter Robinson <pbrobinson@fedoraproject.org> 3.0.3-2
 - All architectures have python-pymongo
 - BuildReq cleanups
