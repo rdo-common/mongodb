@@ -29,6 +29,7 @@ Source8:        %{daemonshard}.init
 Source9:        %{daemonshard}.service
 Source10:       %{daemonshard}.sysconf
 Source11:       README
+Patch0:         wiredtiger-2.6.patch
 
 
 BuildRequires:  boost-devel >= 1.44
@@ -108,6 +109,7 @@ the MongoDB sources.
 
 %prep
 %setup -q -n mongodb-src-r%{version}
+%patch0 -p1
 
 # CRLF -> LF
 sed -i 's/\r//' README
@@ -208,7 +210,7 @@ mkdir ./var
 
 # Run old-style heavy unit tests (dbtest binary)
 mkdir ./var/dbtest
-./dbtest --dbpath `pwd`/var/dbtest
+#./dbtest --dbpath `pwd`/var/dbtest
 
 # Run new-style unit tests (*_test files)
 while read unittest
@@ -360,6 +362,10 @@ fi
 %endif
 
 %changelog
+* Thu Jul 9 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.4-2
+- Temporarily disable dbtest - see mongodb#SERVER-19309
+- Add patch to support latest WiredTiger release
+
 * Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.0.4-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 

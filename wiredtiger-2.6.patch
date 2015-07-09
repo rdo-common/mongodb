@@ -1,0 +1,30 @@
+diff --git a/src/mongo/db/storage/wiredtiger/wiredtiger_util_test.cpp b/src/mongo/db/storage/wiredtiger/wiredtiger_util_test.cpp
+index e35ecd3..1363600 100644
+--- a/src/mongo/db/storage/wiredtiger/wiredtiger_util_test.cpp
++++ b/src/mongo/db/storage/wiredtiger/wiredtiger_util_test.cpp
+@@ -115,6 +115,12 @@ namespace mongo {
+                 WiredTigerRecoveryUnit::get(_opCtx.get())->getSession(_opCtx.get())->getSession();
+             ASSERT_OK(wtRCToStatus(wtSession->create(wtSession, getURI(), config)));
+         }
++
++        void createSessionNOK(const char* config) {
++            WT_SESSION* wtSession =
++                WiredTigerRecoveryUnit::get(_opCtx.get())->getSession(_opCtx.get())->getSession();
++            ASSERT_NOT_OK(wtRCToStatus(wtSession->create(wtSession, getURI(), config)));
++        }
+     private:
+         boost::scoped_ptr<WiredTigerUtilHarnessHelper> _harnessHelper;
+         boost::scoped_ptr<OperationContext> _opCtx;
+@@ -172,11 +178,7 @@ namespace mongo {
+ 
+     TEST_F(WiredTigerUtilMetadataTest, GetApplicationMetadataInvalidMetadata) {
+         const char* config = "app_metadata=(abc=def=ghi)";
+-        createSession(config);
+-        StatusWith<BSONObj> result =
+-            WiredTigerUtil::getApplicationMetadata(getOperationContext(), getURI());
+-        ASSERT_NOT_OK(result.getStatus());
+-        ASSERT_EQUALS(ErrorCodes::BadValue, result.getStatus().code());
++        createSessionNOK(config);
+     }
+ 
+     TEST_F(WiredTigerUtilMetadataTest, GetApplicationMetadataDuplicateKeys) {
