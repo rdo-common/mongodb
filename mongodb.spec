@@ -8,7 +8,7 @@
 
 Name:           mongodb
 Version:        3.0.4
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -362,6 +362,9 @@ fi
 %endif
 
 %changelog
+* Wed Jul 22 2015 David Tardon <dtardon@redhat.com> - 3.0.4-3
+- rebuild for Boost 1.58
+
 * Thu Jul 9 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.4-2
 - Temporarily disable dbtest - see mongodb#SERVER-19309
 - Add patch to support latest WiredTiger release
