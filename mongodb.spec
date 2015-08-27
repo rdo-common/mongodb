@@ -8,7 +8,7 @@
 
 Name:           mongodb
 Version:        3.0.4
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -362,6 +362,9 @@ fi
 %endif
 
 %changelog
+* Thu Aug 27 2015 Jonathan Wakely <jwakely@redhat.com> - 3.0.4-5
+- Rebuilt for Boost 1.59
+
 * Wed Jul 29 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.0.4-4
 - Rebuilt for https://fedoraproject.org/wiki/Changes/F23Boost159
 
