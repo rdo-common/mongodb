@@ -5,10 +5,15 @@
 %global daemon mongod
 # mongos daemon
 %global daemonshard mongos
+# Some architectures run tests during the build. Allow for
+# a way to temporarily disable tests so that builds succeed.
+%global runselftests 0
+# Do we want to package tests
+%bcond_without tests
 
 Name:           mongodb
 Version:        3.0.4
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -94,6 +99,7 @@ This package provides the mongo server software, mongo sharding server
 software, default configuration files, and init scripts.
 
 
+%if %{with tests}
 %ifarch %{ix86} x86_64
 %package test
 Summary:          MongoDB test suite
@@ -105,6 +111,7 @@ Requires:         python-pymongo
 %description test
 This package contains the regression test suite distributed with
 the MongoDB sources.
+%endif
 %endif
 
 %prep
@@ -190,6 +197,7 @@ install -p -m 644 debian/mongosniff.1 %{buildroot}%{_mandir}/man1/
 install -p -m 644 debian/mongod.1     %{buildroot}%{_mandir}/man1/
 install -p -m 644 debian/mongos.1     %{buildroot}%{_mandir}/man1/
 
+%if %{with tests}
 %ifarch %{ix86} x86_64
 mkdir -p %{buildroot}%{_datadir}/%{pkg_name}-test
 mkdir -p %{buildroot}%{_datadir}/%{pkg_name}-test/var
@@ -200,9 +208,13 @@ install -p -D -m 444 buildscripts/utils.py   %{buildroot}%{_datadir}/%{pkg_name}
 cp -R                jstests                 %{buildroot}%{_datadir}/%{pkg_name}-test/
 
 install -p -D -m 444 "%{SOURCE11}"           %{buildroot}%{_datadir}/%{pkg_name}-test/
+%endif
+%endif
 
 
 %check
+%if 0%{?runselftests}
+%ifarch %{ix86} x86_64
 # More info about testing:
 # http://www.mongodb.org/about/contributors/tutorial/test-the-mongodb-server/
 cd %{_builddir}/%{pkg_name}-src-r%{version}
@@ -225,6 +237,7 @@ done < ./build/unittests.txt
 # Run JavaScript integration tests
 buildscripts/smoke.py --smoke-db-prefix ./var --continue-on-failure --mongo=%{buildroot}%{_bindir}/mongo --mongod=%{buildroot}%{_bindir}/%{daemon} --nopreallocj jsCore
 rm -Rf ./var
+%endif
 %endif
 
 %post -p /sbin/ldconfig
@@ -349,6 +362,7 @@ fi
 %{_initddir}/%{daemonshard}
 %endif
 
+%if %{with tests}
 %ifarch %{ix86} x86_64
 %files test
 %doc %{_datadir}/%{pkg_name}-test/README
@@ -360,8 +374,12 @@ fi
 %{_datadir}/%{pkg_name}-test/utils.*
 %{_datadir}/%{pkg_name}-test/jstests/*
 %endif
+%endif
 
 %changelog
+* Tue Sep 08 2015 Severin Gehwolf <sgehwolf@redhat.com> - 3.0.4-6
+- Allow for tests to be enabled conditionally during build.
+
 * Thu Aug 27 2015 Jonathan Wakely <jwakely@redhat.com> - 3.0.4-5
 - Rebuilt for Boost 1.59
 
