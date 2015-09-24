@@ -7,7 +7,7 @@
 %global daemonshard mongos
 
 Name:           mongodb
-Version:        3.0.5
+Version:        3.0.6
 Release:        1%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
@@ -29,7 +29,7 @@ Source8:        %{daemonshard}.init
 Source9:        %{daemonshard}.service
 Source10:       %{daemonshard}.sysconf
 Source11:       README
-Patch0:         wiredtiger-2.6.patch
+#Patch0:         wiredtiger-2.6.patch
 
 
 BuildRequires:  boost-devel >= 1.44
@@ -109,7 +109,7 @@ the MongoDB sources.
 
 %prep
 %setup -q -n mongodb-src-r%{version}
-%patch0 -p1
+#%patch0 -p1
 
 # CRLF -> LF
 sed -i 's/\r//' README
@@ -131,6 +131,7 @@ failfile = os.path.join\(os.path.join\(mongo_repo, smoke_db_prefix\), 'failfile.
 # https://jira.mongodb.org/browse/SERVER-17511
 sed -i -r "s|(env.Append\(CCFLAGS=\['-DDEBUG_MODE=false')(\]\))|\1,'-O0'\2|"  src/third_party/s2/SConscript
 
+
 %build
 # see output of "scons --help" for options
 scons all \
@@ -140,11 +141,8 @@ scons all \
         --nostrip \
         --ssl \
         --disable-warnings-as-errors \
-%ifarch x86_64
-        --wiredtiger=on \
-%else
         --wiredtiger=off \
-%endif
+        --c++11=on \
         CCFLAGS="%{?optflags}" LINKFLAGS="%{?__global_ldflags}"
 
 
@@ -157,11 +155,8 @@ scons install \
         --ssl \
         --disable-warnings-as-errors \
         --prefix=%{buildroot}%{_prefix} \
-%ifarch x86_64
-        --wiredtiger=on \
-%else
         --wiredtiger=off \
-%endif
+        --c++11=on \
         CCFLAGS="%{?optflags}" LINKFLAGS="%{?__global_ldflags}"
 
 mkdir -p %{buildroot}%{_sharedstatedir}/%{pkg_name}
@@ -327,7 +322,6 @@ fi
 %{_mandir}/man1/mongosniff.1*
 
 
-
 %files server
 %{_bindir}/mongod
 %{_bindir}/mongos
@@ -349,6 +343,7 @@ fi
 %{_initddir}/%{daemonshard}
 %endif
 
+
 %ifarch %{ix86} x86_64
 %files test
 %doc %{_datadir}/%{pkg_name}-test/README
@@ -361,7 +356,13 @@ fi
 %{_datadir}/%{pkg_name}-test/jstests/*
 %endif
 
+
 %changelog
+* Thu Sep 24 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.6-1
+- Temporarily disable WiredTiger (FPC request to bundle it)
+- Enable c++11 (MongoDB requires it since 3.0.5)
+- Upgrade to version 3.0.6
+
 * Mon Aug 3 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.5-1
 - Upgrade to version 3.0.5
 
