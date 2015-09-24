@@ -359,6 +359,7 @@ fi
 
 %changelog
 * Thu Sep 24 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.6-1
+- Fixed systemd service PIDFile setting (#1231269)
 - Temporarily disable WiredTiger (FPC request to bundle it)
 - Enable c++11 (MongoDB requires it since 3.0.5)
 - Upgrade to version 3.0.6
