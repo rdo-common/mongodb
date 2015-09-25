@@ -379,9 +379,6 @@ fi
 - Enable c++11 (MongoDB requires it since 3.0.5)
 - Upgrade to version 3.0.6
 
-* Mon Aug 3 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.5-1
-- Upgrade to version 3.0.5
-
 * Tue Sep 08 2015 Severin Gehwolf <sgehwolf@redhat.com> - 3.0.4-6
 - Allow for tests to be enabled conditionally during build.
 
