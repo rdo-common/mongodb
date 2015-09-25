@@ -6,7 +6,6 @@ After=syslog.target network.target
 Type=forking
 User=mongodb
 EnvironmentFile=/etc/sysconfig/mongos
-PIDFile=${PIDFILE-/var/run/mongodb/mongos.pid}
 ExecStart=/usr/bin/mongos $OPTIONS
 PrivateTmp=true
 LimitNOFILE=64000
