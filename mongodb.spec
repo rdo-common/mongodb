@@ -13,7 +13,7 @@
 
 Name:           mongodb
 Version:        3.0.6
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -34,7 +34,6 @@ Source8:        %{daemonshard}.init
 Source9:        %{daemonshard}.service
 Source10:       %{daemonshard}.sysconf
 Source11:       README
-#Patch0:         wiredtiger-2.6.patch
 
 
 BuildRequires:  boost-devel >= 1.44
@@ -50,9 +49,6 @@ BuildRequires:  snappy-devel
 BuildRequires:  v8-devel >= 3.14.5.10
 BuildRequires:  yaml-cpp-devel
 BuildRequires:  zlib-devel
-%ifarch x86_64
-BuildRequires:  wiredtiger-devel
-%endif
 %if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
 BuildRequires:  systemd
 %endif
@@ -94,6 +90,8 @@ Requires(preun): chkconfig
 Requires(postun): initscripts
 %endif
 
+Provides: bundled(wiredtiger) = 2.5.3
+
 %description server
 This package provides the mongo server software, mongo sharding server
 software, default configuration files, and init scripts.
@@ -116,7 +114,6 @@ the MongoDB sources.
 
 %prep
 %setup -q -n mongodb-src-r%{version}
-#%patch0 -p1
 
 # CRLF -> LF
 sed -i 's/\r//' README
@@ -143,12 +140,23 @@ sed -i -r "s|(env.Append\(CCFLAGS=\['-DDEBUG_MODE=false')(\]\))|\1,'-O0'\2|"  sr
 # see output of "scons --help" for options
 scons all \
         %{?_smp_mflags} \
-        --use-system-all \
+        --use-system-tcmalloc \
+        --use-system-pcre \
+        --use-system-boost \
+        --use-system-snappy \
+        --use-system-zlib \
+        --use-system-v8 \
+        --use-system-stemmer \
+        --use-system-yaml \
         --variant-dir=build%{?dist} \
         --nostrip \
         --ssl \
         --disable-warnings-as-errors \
+%ifarch x86_64
+        --wiredtiger=on \
+%else
         --wiredtiger=off \
+%endif
         --c++11=on \
         CCFLAGS="%{?optflags}" LINKFLAGS="%{?__global_ldflags}"
 
@@ -156,13 +164,24 @@ scons all \
 %install
 scons install \
         %{?_smp_mflags} \
-        --use-system-all \
+        --use-system-tcmalloc \
+        --use-system-pcre \
+        --use-system-boost \
+        --use-system-snappy \
+        --use-system-zlib \
+        --use-system-v8 \
+        --use-system-stemmer \
+        --use-system-yaml \
         --variant-dir=build%{?dist} \
         --nostrip \
         --ssl \
         --disable-warnings-as-errors \
         --prefix=%{buildroot}%{_prefix} \
+%ifarch x86_64
+        --wiredtiger=on \
+%else
         --wiredtiger=off \
+%endif
         --c++11=on \
         CCFLAGS="%{?optflags}" LINKFLAGS="%{?__global_ldflags}"
 
@@ -373,6 +392,11 @@ fi
 
 
 %changelog
+* Thu Oct 8 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.6-2
+- Enable bundled WiredTiger
+  (FPC ticket - https://fedorahosted.org/fpc/ticket/562,
+   upstream discussion - https://groups.google.com/forum/#!topic/mongodb-dev/31FQSo4KVCI)
+
 * Thu Sep 24 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.6-1
 - Fixed systemd service PIDFile setting (#1231269)
 - Temporarily disable WiredTiger (FPC request to bundle it)
