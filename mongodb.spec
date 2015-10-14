@@ -7,13 +7,13 @@
 %global daemonshard mongos
 # Some architectures run tests during the build. Allow for
 # a way to temporarily disable tests so that builds succeed.
-%global runselftests 0
+%global runselftests 1
 # Do we want to package tests
 %bcond_without tests
 
 Name:           mongodb
 Version:        3.0.6
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -34,6 +34,9 @@ Source8:        %{daemonshard}.init
 Source9:        %{daemonshard}.service
 Source10:       %{daemonshard}.sysconf
 Source11:       README
+
+# Fix test failure with boost 1.59 - https://jira.mongodb.org/browse/SERVER-20754
+Patch0:         boost-1.59.patch
 
 
 BuildRequires:  boost-devel >= 1.44
@@ -114,6 +117,7 @@ the MongoDB sources.
 
 %prep
 %setup -q -n mongodb-src-r%{version}
+%patch0 -p1
 
 # CRLF -> LF
 sed -i 's/\r//' README
@@ -392,6 +396,9 @@ fi
 
 
 %changelog
+* Mon Oct 12 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.6-3
+- Added patch to support boost 1.59
+
 * Thu Oct 8 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.6-2
 - Enable bundled WiredTiger
   (FPC ticket - https://fedorahosted.org/fpc/ticket/562,
