@@ -12,8 +12,8 @@
 %bcond_without tests
 
 Name:           mongodb
-Version:        3.0.6
-Release:        3%{?dist}
+Version:        3.0.7
+Release:        1%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -396,6 +396,9 @@ fi
 
 
 %changelog
+* Thu Oct 15 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.7-1
+- Upgrade to version 3.0.7
+
 * Mon Oct 12 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.6-3
 - Added patch to support boost 1.59
 
