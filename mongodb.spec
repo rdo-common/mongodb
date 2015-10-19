@@ -13,7 +13,7 @@
 
 Name:           mongodb
 Version:        3.0.7
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -124,6 +124,10 @@ sed -i 's/\r//' README
 
 # disable propagation of $TERM env var into the Scons build system
 sed -i -r "s|(for key in \('HOME'), 'TERM'(\):)|\1\2|" SConstruct
+
+# Use system versions of header files (bundled does not differ)
+sed -i -r "s|third_party/libstemmer_c/include/libstemmer.h|libstemmer.h|" src/mongo/db/fts/stemmer.h
+sed -i -r "s|third_party/yaml-cpp-0.5.1/include/yaml-cpp/yaml.h|yaml-cpp/yaml.h|" src/mongo/util/options_parser/options_parser.cpp
 
 # by default use system mongod, mongos and mongo binaries
 sed -i -r "s|(default=os.path.join\()mongo_repo(, 'mongod'\))|\1'%{_bindir}'\2|"   buildscripts/smoke.py
@@ -396,6 +400,9 @@ fi
 
 
 %changelog
+* Thu Oct 15 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.7-2
+- Fixed using system version of header files (#1269391#c0)
+
 * Thu Oct 15 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.7-1
 - Upgrade to version 3.0.7
 
