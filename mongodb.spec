@@ -12,8 +12,8 @@
 %bcond_without tests
 
 Name:           mongodb
-Version:        3.0.7
-Release:        2%{?dist}
+Version:        3.2.0
+Release:        0.rc4%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -22,7 +22,8 @@ License:        AGPLv3 and zlib and ASL 2.0
 # everything else is AGPLv3
 URL:            http://www.mongodb.org
 
-Source0:        http://fastdl.mongodb.org/src/%{pkg_name}-src-r%{version}.tar.gz
+Source0:        https://github.com/%{pkg_name}/mongo/archive/mongo-r%{version}-rc4.tar.gz
+##Source0:        http://fastdl.mongodb.org/src/%{pkg_name}-src-r%{version}.tar.gz
 Source1:        %{pkg_name}-tmpfile
 Source2:        %{pkg_name}.logrotate
 Source3:        %{daemon}.conf
@@ -35,26 +36,30 @@ Source9:        %{daemonshard}.service
 Source10:       %{daemonshard}.sysconf
 Source11:       README
 
-# Fix test failure with boost 1.59 - https://jira.mongodb.org/browse/SERVER-20754
-Patch0:         boost-1.59.patch
+# Enable building with system version of libraries
+# https://jira.mongodb.org/browse/SERVER-21353
+Patch0:         system-libs.patch
 
-
-BuildRequires:  boost-devel >= 1.44
+BuildRequires:  boost-devel >= 1.56
 # Provides tcmalloc
 BuildRequires:  gperftools-devel
 BuildRequires:  libpcap-devel
 BuildRequires:  libstemmer-devel
 BuildRequires:  openssl-devel
 BuildRequires:  pcre-devel
-BuildRequires:  python-pymongo
 BuildRequires:  scons
 BuildRequires:  snappy-devel
-BuildRequires:  v8-devel >= 3.14.5.10
 BuildRequires:  yaml-cpp-devel
 BuildRequires:  zlib-devel
+BuildRequires:  asio-devel
+BuildRequires:  mozjs38-devel
+BuildRequires:  valgrind-devel
 %if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
 BuildRequires:  systemd
 %endif
+# Required by test suite
+BuildRequires:  python-pymongo
+BuildRequires:  PyYAML
 
 # Mongodb must run on a little-endian CPU (see bug #630898)
 ExcludeArch:    ppc ppc64 %{sparc} s390 s390x
@@ -82,7 +87,6 @@ functionality).
 Summary:        MongoDB server, sharding server and support scripts
 Group:          Applications/Databases
 Requires(pre):  shadow-utils
-Requires:       v8
 %if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
 Requires(post): systemd-units
 Requires(preun): systemd-units
@@ -93,7 +97,10 @@ Requires(preun): chkconfig
 Requires(postun): initscripts
 %endif
 
-Provides: bundled(wiredtiger) = 2.5.3
+Provides: bundled(wiredtiger) = 2.6.1
+# MongoDB bundles development release of asio 1.11
+# This is not in Fedora yet (only asio-1.10)
+Provides: bundled(asio) = 1.11.0
 
 %description server
 This package provides the mongo server software, mongo sharding server
@@ -116,7 +123,8 @@ the MongoDB sources.
 %endif
 
 %prep
-%setup -q -n mongodb-src-r%{version}
+##%setup -q -n mongodb-src-r%{version}
+%setup -q -n mongo-r%{version}-rc4
 %patch0 -p1
 
 # CRLF -> LF
@@ -152,11 +160,11 @@ scons all \
         --use-system-pcre \
         --use-system-boost \
         --use-system-snappy \
+        --use-system-valgrind \
         --use-system-zlib \
-        --use-system-v8 \
         --use-system-stemmer \
         --use-system-yaml \
-        --variant-dir=build%{?dist} \
+        --use-system-mozjs \
         --nostrip \
         --ssl \
         --disable-warnings-as-errors \
@@ -165,8 +173,8 @@ scons all \
 %else
         --wiredtiger=off \
 %endif
-        --c++11=on \
-        CCFLAGS="%{?optflags}" LINKFLAGS="%{?__global_ldflags}"
+        --experimental-decimal-support=off \
+        CCFLAGS="%{?optflags}" LINKFLAGS="%{?__global_ldflags}" MONGO_VERSION="%{version}-%{release}"
 
 
 %install
@@ -176,11 +184,11 @@ scons install \
         --use-system-pcre \
         --use-system-boost \
         --use-system-snappy \
+        --use-system-valgrind \
         --use-system-zlib \
-        --use-system-v8 \
         --use-system-stemmer \
         --use-system-yaml \
-        --variant-dir=build%{?dist} \
+        --use-system-mozjs \
         --nostrip \
         --ssl \
         --disable-warnings-as-errors \
@@ -190,8 +198,8 @@ scons install \
 %else
         --wiredtiger=off \
 %endif
-        --c++11=on \
-        CCFLAGS="%{?optflags}" LINKFLAGS="%{?__global_ldflags}"
+        --experimental-decimal-support=off \
+        CCFLAGS="%{?optflags}" LINKFLAGS="%{?__global_ldflags}" MONGO_VERSION="%{version}-%{release}"
 
 mkdir -p %{buildroot}%{_sharedstatedir}/%{pkg_name}
 mkdir -p %{buildroot}%{_localstatedir}/log/%{pkg_name}
@@ -239,11 +247,12 @@ install -p -D -m 444 "%{SOURCE11}"           %{buildroot}%{_datadir}/%{pkg_name}
 %ifarch %{ix86} x86_64
 # More info about testing:
 # http://www.mongodb.org/about/contributors/tutorial/test-the-mongodb-server/
-cd %{_builddir}/%{pkg_name}-src-r%{version}
+##cd %{_builddir}/%{pkg_name}-src-r%{version}
+cd %{_builddir}/mongo-r%{version}-rc4
 mkdir ./var
 
 # Run old-style heavy unit tests (dbtest binary)
-mkdir ./var/dbtest
+#mkdir ./var/dbtest
 #./dbtest --dbpath `pwd`/var/dbtest
 
 # Run new-style unit tests (*_test files)
@@ -257,7 +266,13 @@ do
 done < ./build/unittests.txt
 
 # Run JavaScript integration tests
-buildscripts/smoke.py --smoke-db-prefix ./var --continue-on-failure --mongo=%{buildroot}%{_bindir}/mongo --mongod=%{buildroot}%{_bindir}/%{daemon} --nopreallocj jsCore
+#./buildscripts/resmoke.py --dbpathPrefix ./var --continueOnFailure --mongo=%{buildroot}%{_bindir}/mongo --mongod=%{buildroot}%{_bindir}/%{daemon} --mongos=%{buildroot}%{_bindir}/%{daemonshard} --nopreallocj --suites core \
+#%ifarch x86_64
+#--storageEngine=wiredTiger
+#%else
+#--storageEngine=mmapv1
+#%endif
+
 rm -Rf ./var
 %endif
 %endif
@@ -400,6 +415,9 @@ fi
 
 
 %changelog
+* Fri Nov 27 2015 Marek Skalicky <mskalick@redhat.com> - 3.2.0-0.rc4
+- Upgrade to version 3.2.0-rc4
+
 * Thu Oct 15 2015 Marek Skalicky <mskalick@redhat.com> - 3.0.7-2
 - Fixed using system version of header files (#1269391#c0)
 
