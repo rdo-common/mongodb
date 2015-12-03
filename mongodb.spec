@@ -13,7 +13,7 @@
 
 Name:           mongodb
 Version:        3.2.0
-Release:        0.rc4%{?dist}
+Release:        0.rc6%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -22,7 +22,7 @@ License:        AGPLv3 and zlib and ASL 2.0
 # everything else is AGPLv3
 URL:            http://www.mongodb.org
 
-Source0:        https://github.com/%{pkg_name}/mongo/archive/mongo-r%{version}-rc4.tar.gz
+Source0:        https://github.com/%{pkg_name}/mongo/archive/r%{version}-rc6.tar.gz
 ##Source0:        http://fastdl.mongodb.org/src/%{pkg_name}-src-r%{version}.tar.gz
 Source1:        %{pkg_name}-tmpfile
 Source2:        %{pkg_name}.logrotate
@@ -266,7 +266,7 @@ do
 done < ./build/unittests.txt
 
 # Run JavaScript integration tests
-#./buildscripts/resmoke.py --dbpathPrefix ./var --continueOnFailure --mongo=%{buildroot}%{_bindir}/mongo --mongod=%{buildroot}%{_bindir}/%{daemon} --mongos=%{buildroot}%{_bindir}/%{daemonshard} --nopreallocj --suites core \
+#./buildscripts/resmoke.py --dbpathPrefix `pwd`/var --continueOnFailure --mongo=%{buildroot}%{_bindir}/mongo --mongod=%{buildroot}%{_bindir}/%{daemon} --mongos=%{buildroot}%{_bindir}/%{daemonshard} --nopreallocj --suites core \
 #%ifarch x86_64
 #--storageEngine=wiredTiger
 #%else
@@ -415,6 +415,9 @@ fi
 
 
 %changelog
+* Thu Dec 3 2015 Marek Skalicky <mskalick@redhat.com> - 3.2.0-0.rc6
+- Upgrade to version 3.2.0-rc6
+
 * Fri Nov 27 2015 Marek Skalicky <mskalick@redhat.com> - 3.2.0-0.rc4
 - Upgrade to version 3.2.0-rc4
 
