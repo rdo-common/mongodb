@@ -11,9 +11,11 @@
 # Do we want to package tests
 %bcond_without tests
 
+%global prerelease rc6
+
 Name:           mongodb
 Version:        3.2.0
-Release:        0.rc6%{?dist}
+Release:        0.%{prerelease}%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -124,7 +126,7 @@ the MongoDB sources.
 
 %prep
 ##%setup -q -n mongodb-src-r%{version}
-%setup -q -n mongo-r%{version}-rc4
+%setup -q -n mongo-r%{version}-%{prerelease}
 %patch0 -p1
 
 # CRLF -> LF
@@ -248,7 +250,7 @@ install -p -D -m 444 "%{SOURCE11}"           %{buildroot}%{_datadir}/%{pkg_name}
 # More info about testing:
 # http://www.mongodb.org/about/contributors/tutorial/test-the-mongodb-server/
 ##cd %{_builddir}/%{pkg_name}-src-r%{version}
-cd %{_builddir}/mongo-r%{version}-rc4
+cd %{_builddir}/mongo-r%{version}-%{prerelease}
 mkdir ./var
 
 # Run old-style heavy unit tests (dbtest binary)
