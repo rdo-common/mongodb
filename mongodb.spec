@@ -15,7 +15,7 @@
 
 Name:           mongodb
 Version:        3.2.0
-Release:        0.%{prerelease}%{?dist}
+Release:        1%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -24,8 +24,7 @@ License:        AGPLv3 and zlib and ASL 2.0
 # everything else is AGPLv3
 URL:            http://www.mongodb.org
 
-Source0:        https://github.com/%{pkg_name}/mongo/archive/r%{version}-rc6.tar.gz
-##Source0:        http://fastdl.mongodb.org/src/%{pkg_name}-src-r%{version}.tar.gz
+Source0:        http://fastdl.mongodb.org/src/%{pkg_name}-src-r%{version}.tar.gz
 Source1:        %{pkg_name}-tmpfile
 Source2:        %{pkg_name}.logrotate
 Source3:        %{daemon}.conf
@@ -125,8 +124,7 @@ the MongoDB sources.
 %endif
 
 %prep
-##%setup -q -n mongodb-src-r%{version}
-%setup -q -n mongo-r%{version}-%{prerelease}
+%setup -q -n mongodb-src-r%{version}
 %patch0 -p1
 
 # CRLF -> LF
@@ -176,7 +174,7 @@ scons all \
         --wiredtiger=off \
 %endif
         --experimental-decimal-support=off \
-        CCFLAGS="%{?optflags}" LINKFLAGS="%{?__global_ldflags}" MONGO_VERSION="%{version}-%{release}"
+        CCFLAGS="%{?optflags}" LINKFLAGS="%{?__global_ldflags}"
 
 
 %install
@@ -201,7 +199,7 @@ scons install \
         --wiredtiger=off \
 %endif
         --experimental-decimal-support=off \
-        CCFLAGS="%{?optflags}" LINKFLAGS="%{?__global_ldflags}" MONGO_VERSION="%{version}-%{release}"
+        CCFLAGS="%{?optflags}" LINKFLAGS="%{?__global_ldflags}"
 
 mkdir -p %{buildroot}%{_sharedstatedir}/%{pkg_name}
 mkdir -p %{buildroot}%{_localstatedir}/log/%{pkg_name}
@@ -249,8 +247,7 @@ install -p -D -m 444 "%{SOURCE11}"           %{buildroot}%{_datadir}/%{pkg_name}
 %ifarch %{ix86} x86_64
 # More info about testing:
 # http://www.mongodb.org/about/contributors/tutorial/test-the-mongodb-server/
-##cd %{_builddir}/%{pkg_name}-src-r%{version}
-cd %{_builddir}/mongo-r%{version}-%{prerelease}
+cd %{_builddir}/%{pkg_name}-src-r%{version}
 mkdir ./var
 
 # Run old-style heavy unit tests (dbtest binary)
@@ -268,12 +265,12 @@ do
 done < ./build/unittests.txt
 
 # Run JavaScript integration tests
-#./buildscripts/resmoke.py --dbpathPrefix `pwd`/var --continueOnFailure --mongo=%{buildroot}%{_bindir}/mongo --mongod=%{buildroot}%{_bindir}/%{daemon} --mongos=%{buildroot}%{_bindir}/%{daemonshard} --nopreallocj --suites core \
-#%ifarch x86_64
-#--storageEngine=wiredTiger
-#%else
-#--storageEngine=mmapv1
-#%endif
+./buildscripts/resmoke.py --dbpathPrefix `pwd`/var --continueOnFailure --mongo=%{buildroot}%{_bindir}/mongo --mongod=%{buildroot}%{_bindir}/%{daemon} --mongos=%{buildroot}%{_bindir}/%{daemonshard} --nopreallocj --suites core \
+%ifarch x86_64
+--storageEngine=wiredTiger
+%else
+--storageEngine=mmapv1
+%endif
 
 rm -Rf ./var
 %endif
@@ -417,6 +414,9 @@ fi
 
 
 %changelog
+* Wed Dec 9 2015 Marek Skalicky <mskalick@redhat.com> - 3.2.0-1
+- Upgrade to latest stable version 3.2.0
+
 * Thu Dec 3 2015 Marek Skalicky <mskalick@redhat.com> - 3.2.0-0.rc6
 - Upgrade to version 3.2.0-rc6
 
