@@ -1,1 +1,1 @@
-OPTIONS="--quiet -f /etc/mongod.conf"
+OPTIONS="-f /etc/mongod.conf"

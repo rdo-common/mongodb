@@ -5,16 +5,16 @@
 %global daemon mongod
 # mongos daemon
 %global daemonshard mongos
-# Some architectures run tests during the build. Allow for
-# a way to temporarily disable tests so that builds succeed.
-%global runselftests 1
+
+# Regression tests may take a long time (many cores recommended), skip them by
+# passing --nocheck to rpmbuild or by setting runselftest to 0 if defining
+# --nocheck is not possible (e.g. in koji build)
+%{!?runselftest:%global runselftest 1}
 # Do we want to package tests
 %bcond_without tests
 
-%global prerelease rc6
-
 Name:           mongodb
-Version:        3.2.0
+Version:        3.2.1
 Release:        1%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
@@ -41,6 +41,7 @@ Source11:       README
 # https://jira.mongodb.org/browse/SERVER-21353
 Patch0:         system-libs.patch
 
+BuildRequires:  gcc >= 4.8.2
 BuildRequires:  boost-devel >= 1.56
 # Provides tcmalloc
 BuildRequires:  gperftools-devel
@@ -59,8 +60,12 @@ BuildRequires:  valgrind-devel
 BuildRequires:  systemd
 %endif
 # Required by test suite
+%if %runselftest
+%ifarch %{ix86} x86_64
 BuildRequires:  python-pymongo
 BuildRequires:  PyYAML
+%endif
+%endif
 
 # Mongodb must run on a little-endian CPU (see bug #630898)
 ExcludeArch:    ppc ppc64 %{sparc} s390 s390x
@@ -116,6 +121,7 @@ Group:            Applications/Databases
 Requires:         %{name}%{?_isa} = %{version}-%{release}
 Requires:         %{name}-server%{?_isa} = %{version}-%{release}
 Requires:         python-pymongo
+Requires:         PyYAML
 
 %description test
 This package contains the regression test suite distributed with
@@ -137,15 +143,13 @@ sed -i -r "s|(for key in \('HOME'), 'TERM'(\):)|\1\2|" SConstruct
 sed -i -r "s|third_party/libstemmer_c/include/libstemmer.h|libstemmer.h|" src/mongo/db/fts/stemmer.h
 sed -i -r "s|third_party/yaml-cpp-0.5.1/include/yaml-cpp/yaml.h|yaml-cpp/yaml.h|" src/mongo/util/options_parser/options_parser.cpp
 
-# by default use system mongod, mongos and mongo binaries
-sed -i -r "s|(default=os.path.join\()mongo_repo(, 'mongod'\))|\1'%{_bindir}'\2|"   buildscripts/smoke.py
-sed -i -r "s|(default=os.path.join\()mongo_repo(, 'mongo'\))|\1'%{_bindir}'\2|"    buildscripts/smoke.py
-sed -i -r "s|(os.path.join\()mongo_repo(, program)|\1'%{_bindir}'\2|"              buildscripts/smoke.py
+# by default use system mongod, mongos and mongo binaries in resmoke.py
+sed -i -r "s|os.curdir(, \"mongo\")|\"%{_bindir}\"\1|"   buildscripts/resmokelib/config.py
+sed -i -r "s|os.curdir(, \"mongod\")|\"%{_bindir}\"\1|"   buildscripts/resmokelib/config.py
+sed -i -r "s|os.curdir(, \"mongos\")|\"%{_bindir}\"\1|"   buildscripts/resmokelib/config.py
 
-# set default data prefix
-sed -i -r "s|(smoke_db_prefix = ')'|\1var'|"                           buildscripts/smoke.py
-sed -i -r "s|^([[:space:]]*)(set_globals\(options, tests\))$|\1\2\n\1global failfile\n\1\
-failfile = os.path.join\(os.path.join\(mongo_repo, smoke_db_prefix\), 'failfile.smoke'\)|"    buildscripts/smoke.py
+# set default data prefix in resmoke.py
+sed -i -r "s|/data/db|%{_datadir}/%{pkg_name}-test/var|"   buildscripts/resmokelib/config.py
 
 # Disable optimization for s2 library
 # https://jira.mongodb.org/browse/SERVER-17511
@@ -153,6 +157,13 @@ sed -i -r "s|(env.Append\(CCFLAGS=\['-DDEBUG_MODE=false')(\]\))|\1,'-O0'\2|"  sr
 
 
 %build
+# Prepare variables for building
+cat > variables.list << EOF
+CCFLAGS="%{?optflags}"
+LINKFLAGS="%{?__global_ldflags}"
+
+EOF
+
 # see output of "scons --help" for options
 scons all \
         %{?_smp_mflags} \
@@ -174,7 +185,7 @@ scons all \
         --wiredtiger=off \
 %endif
         --experimental-decimal-support=off \
-        CCFLAGS="%{?optflags}" LINKFLAGS="%{?__global_ldflags}"
+        --variables-files=variables.list
 
 
 %install
@@ -199,7 +210,7 @@ scons install \
         --wiredtiger=off \
 %endif
         --experimental-decimal-support=off \
-        CCFLAGS="%{?optflags}" LINKFLAGS="%{?__global_ldflags}"
+        --variables-files=variables.list
 
 mkdir -p %{buildroot}%{_sharedstatedir}/%{pkg_name}
 mkdir -p %{buildroot}%{_localstatedir}/log/%{pkg_name}
@@ -231,19 +242,21 @@ install -p -m 644 debian/mongos.1     %{buildroot}%{_mandir}/man1/
 %ifarch %{ix86} x86_64
 mkdir -p %{buildroot}%{_datadir}/%{pkg_name}-test
 mkdir -p %{buildroot}%{_datadir}/%{pkg_name}-test/var
-install -p -D -m 555 buildscripts/smoke.py   %{buildroot}%{_datadir}/%{pkg_name}-test/
-install -p -D -m 444 buildscripts/cleanbb.py %{buildroot}%{_datadir}/%{pkg_name}-test/
-install -p -D -m 444 buildscripts/utils.py   %{buildroot}%{_datadir}/%{pkg_name}-test/
+mkdir -p %{buildroot}%{_datadir}/%{pkg_name}-test/buildscripts
+install -p -D -m 555 buildscripts/resmoke.py   %{buildroot}%{_datadir}/%{pkg_name}-test/
+install -p -D -m 444 buildscripts/__init__.py  %{buildroot}%{_datadir}/%{pkg_name}-test/buildscripts/
 
-cp -R                jstests                 %{buildroot}%{_datadir}/%{pkg_name}-test/
+cp -R     buildscripts/resmokeconfig     %{buildroot}%{_datadir}/%{pkg_name}-test/buildscripts/
+cp -R     buildscripts/resmokelib        %{buildroot}%{_datadir}/%{pkg_name}-test/buildscripts/
+cp -R     jstests                        %{buildroot}%{_datadir}/%{pkg_name}-test/
 
-install -p -D -m 444 "%{SOURCE11}"           %{buildroot}%{_datadir}/%{pkg_name}-test/
+install -p -D -m 444 "%{SOURCE11}"       %{buildroot}%{_datadir}/%{pkg_name}-test/
 %endif
 %endif
 
 
 %check
-%if 0%{?runselftests}
+%if %runselftest
 %ifarch %{ix86} x86_64
 # More info about testing:
 # http://www.mongodb.org/about/contributors/tutorial/test-the-mongodb-server/
@@ -401,19 +414,20 @@ fi
 %if %{with tests}
 %ifarch %{ix86} x86_64
 %files test
-%doc %{_datadir}/%{pkg_name}-test/README
-%dir %attr(0755, %{pkg_name}, root) %{_datadir}/%{pkg_name}-test
-%dir %attr(0755, %{pkg_name}, root) %{_datadir}/%{pkg_name}-test/var
-%dir %attr(0755, %{pkg_name}, root) %{_datadir}/%{pkg_name}-test/jstests
-%{_datadir}/%{pkg_name}-test/smoke.*
-%{_datadir}/%{pkg_name}-test/cleanbb.*
-%{_datadir}/%{pkg_name}-test/utils.*
-%{_datadir}/%{pkg_name}-test/jstests/*
+%{_datadir}/%{pkg_name}-test
 %endif
 %endif
 
 
 %changelog
+* Thu Jan 14 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.1-1
+- Upgrade to versions 3.2.1
+
+* Tue Jan 12 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.0-2
+- Configuration files updated
+  (mongod and mongos also listen on ipv6 localhost by default)
+- test subpackage contains resmoke.py tool instead of smoke.py
+
 * Wed Dec 9 2015 Marek Skalicky <mskalick@redhat.com> - 3.2.0-1
 - Upgrade to latest stable version 3.2.0
 
