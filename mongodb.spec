@@ -15,7 +15,7 @@
 
 Name:           mongodb
 Version:        3.2.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -425,6 +425,9 @@ fi
 
 
 %changelog
+* Tue Jan 19 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.1-2
+- Fixed permissions of test files
+
 * Thu Jan 14 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.1-1
 - Upgrade to versions 3.2.1
 
