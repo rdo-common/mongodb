@@ -394,9 +394,9 @@ fi
 %{_bindir}/mongos
 %{_mandir}/man1/mongod.1*
 %{_mandir}/man1/mongos.1*
-%dir %attr(0750, %{pkg_name}, root) %{_sharedstatedir}/%{pkg_name}
+%dir %attr(0755, %{pkg_name}, root) %{_sharedstatedir}/%{pkg_name}
 %dir %attr(0750, %{pkg_name}, root) %{_localstatedir}/log/%{pkg_name}
-%dir %attr(0750, %{pkg_name}, root) %{_localstatedir}/run/%{pkg_name}
+%dir %attr(0755, %{pkg_name}, root) %{_localstatedir}/run/%{pkg_name}
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{pkg_name}
 %config(noreplace) %{_sysconfdir}/%{daemon}.conf
 %config(noreplace) %{_sysconfdir}/%{daemonshard}.conf
@@ -414,7 +414,12 @@ fi
 %if %{with tests}
 %ifarch %{ix86} x86_64
 %files test
+%doc %{_datadir}/%{pkg_name}-test/README
+%dir %attr(0755, %{pkg_name}, root) %{_datadir}/%{pkg_name}-test
+%dir %attr(0755, %{pkg_name}, root) %{_datadir}/%{pkg_name}-test/var
+%defattr(0444,%{pkg_name},root) 
 %{_datadir}/%{pkg_name}-test
+%attr(0755,-,-) %{_datadir}/%{pkg_name}-test/resmoke.py
 %endif
 %endif
 
