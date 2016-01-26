@@ -15,7 +15,7 @@
 
 Name:           mongodb
 Version:        3.2.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -298,7 +298,7 @@ rm -Rf ./var
 %pre server
 getent group  %{pkg_name} >/dev/null || groupadd -r %{pkg_name}
 getent passwd %{pkg_name} >/dev/null || useradd -r -g %{pkg_name} -u 184 \
-  -d %{_localstatedir}/lib/%{pkg_name} -s /sbin/nologin \
+  -d %{_sharedstatedir}/%{pkg_name} -s /sbin/nologin \
   -c "MongoDB Database Server" %{pkg_name}
 exit 0
 
@@ -425,6 +425,9 @@ fi
 
 
 %changelog
+* Tue Jan 26 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.1-3
+- Rebuild for boost 1.60
+
 * Tue Jan 19 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.1-2
 - Fixed permissions of test files
 
