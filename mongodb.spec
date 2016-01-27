@@ -161,6 +161,7 @@ sed -i -r "s|(env.Append\(CCFLAGS=\['-DDEBUG_MODE=false')(\]\))|\1,'-O0'\2|"  sr
 cat > variables.list << EOF
 CCFLAGS="%{?optflags}"
 LINKFLAGS="%{?__global_ldflags}"
+CPPDEFINES="BOOST_OPTIONAL_USE_SINGLETON_DEFINITION_OF_NONE"
 
 EOF
 
