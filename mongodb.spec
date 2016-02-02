@@ -15,7 +15,7 @@
 
 Name:           mongodb
 Version:        3.2.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -231,6 +231,10 @@ install -p -D -m 644 "%{SOURCE3}"  %{buildroot}%{_sysconfdir}/%{daemon}.conf
 install -p -D -m 644 "%{SOURCE7}"  %{buildroot}%{_sysconfdir}/%{daemonshard}.conf
 install -p -D -m 644 "%{SOURCE6}"  %{buildroot}%{_sysconfdir}/sysconfig/%{daemon}
 install -p -D -m 644 "%{SOURCE10}" %{buildroot}%{_sysconfdir}/sysconfig/%{daemonshard}
+# Enable WiredTiger for x86_64 by default
+%ifarch x86_64
+sed -i -r "s|(engine: )mmapv1|\1wiredTiger|" %{buildroot}%{_sysconfdir}/%{daemon}.conf
+%endif
 
 install -d -m 755                     %{buildroot}%{_mandir}/man1
 install -p -m 644 debian/mongo.1      %{buildroot}%{_mandir}/man1/
@@ -426,6 +430,9 @@ fi
 
 
 %changelog
+* Tue Jan 26 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.1-4
+- Specify, that mmapv1 is default for 32-bit systems
+
 * Tue Jan 26 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.1-3
 - Rebuild for boost 1.60
 
