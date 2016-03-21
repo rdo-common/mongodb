@@ -12,10 +12,12 @@
 %{!?runselftest:%global runselftest 1}
 # Do we want to package tests
 %bcond_without tests
+# Do we want to package unit_tests
+%bcond_with unit_tests
 
 Name:           mongodb
-Version:        3.2.1
-Release:        4%{?dist}
+Version:        3.2.3
+Release:        1%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -243,8 +245,8 @@ install -p -m 644 debian/mongosniff.1 %{buildroot}%{_mandir}/man1/
 install -p -m 644 debian/mongod.1     %{buildroot}%{_mandir}/man1/
 install -p -m 644 debian/mongos.1     %{buildroot}%{_mandir}/man1/
 
-%if %{with tests}
 %ifarch %{ix86} x86_64
+%if %{with tests}
 mkdir -p %{buildroot}%{_datadir}/%{pkg_name}-test
 mkdir -p %{buildroot}%{_datadir}/%{pkg_name}-test/var
 mkdir -p %{buildroot}%{_datadir}/%{pkg_name}-test/buildscripts
@@ -256,6 +258,12 @@ cp -R     buildscripts/resmokelib        %{buildroot}%{_datadir}/%{pkg_name}-tes
 cp -R     jstests                        %{buildroot}%{_datadir}/%{pkg_name}-test/
 
 install -p -D -m 444 "%{SOURCE11}"       %{buildroot}%{_datadir}/%{pkg_name}-test/
+%endif
+%if %{with unit_tests}
+while read unittest
+do
+    install -p -D $unittest %{buildroot}%{_datadir}/%{pkg_name}-test/
+done < ./build/unittests.txt
 %endif
 %endif
 
@@ -273,14 +281,12 @@ mkdir ./var
 #./dbtest --dbpath `pwd`/var/dbtest
 
 # Run new-style unit tests (*_test files)
-while read unittest
-do
-    ./$unittest
-    if [ $? -ne 0 ]
-    then
-        exit 1
-    fi
-done < ./build/unittests.txt
+./buildscripts/resmoke.py --dbpathPrefix `pwd`/var --continueOnFailure --mongo=%{buildroot}%{_bindir}/mongo --mongod=%{buildroot}%{_bindir}/%{daemon} --mongos=%{buildroot}%{_bindir}/%{daemonshard} --nopreallocj --suites unittests \
+%ifarch x86_64
+--storageEngine=wiredTiger
+%else
+--storageEngine=mmapv1
+%endif
 
 # Run JavaScript integration tests
 ./buildscripts/resmoke.py --dbpathPrefix `pwd`/var --continueOnFailure --mongo=%{buildroot}%{_bindir}/mongo --mongod=%{buildroot}%{_bindir}/%{daemon} --mongos=%{buildroot}%{_bindir}/%{daemonshard} --nopreallocj --suites core \
@@ -416,8 +422,8 @@ fi
 %endif
 
 
-%if %{with tests}
 %ifarch %{ix86} x86_64
+%if %{with tests}
 %files test
 %doc %{_datadir}/%{pkg_name}-test/README
 %dir %attr(0755, %{pkg_name}, root) %{_datadir}/%{pkg_name}-test
@@ -430,6 +436,10 @@ fi
 
 
 %changelog
+* Wed Mar 9 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.3-1
+- Upgrade to MongoDB 3.2.3
+- Added ability to have also C++ unit tests in test subpackage
+
 * Tue Jan 26 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.1-4
 - Specify, that mmapv1 is default for 32-bit systems
 
