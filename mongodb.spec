@@ -157,6 +157,9 @@ sed -i -r "s|/data/db|%{_datadir}/%{pkg_name}-test/var|"   buildscripts/resmokel
 # https://jira.mongodb.org/browse/SERVER-17511
 sed -i -r "s|(env.Append\(CCFLAGS=\['-DDEBUG_MODE=false')(\]\))|\1,'-O0'\2|"  src/third_party/s2/SConscript
 
+# use gnu++11 instead of c++11 - RHBZ#1321986
+sed -i "s|-std=c++11|-std=gnu++11|g" SConstruct
+
 
 %build
 # Prepare variables for building
