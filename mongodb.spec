@@ -17,7 +17,7 @@
 
 Name:           mongodb
 Version:        3.2.3
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -157,8 +157,13 @@ sed -i -r "s|/data/db|%{_datadir}/%{pkg_name}-test/var|"   buildscripts/resmokel
 # https://jira.mongodb.org/browse/SERVER-17511
 sed -i -r "s|(env.Append\(CCFLAGS=\['-DDEBUG_MODE=false')(\]\))|\1,'-O0'\2|"  src/third_party/s2/SConscript
 
-# use gnu++11 instead of c++11 - RHBZ#1321986
-sed -i "s|-std=c++11|-std=gnu++11|g" SConstruct
+# fix one unit test which used gnu++11 code (c++11 is used)
+sed -i 's|ASSERT_PARSES(double, "0xabcab.defdefP-10", 0xabcab.defdefP-10);||' src/mongo/base/parse_number_test.cpp
+
+# set default storage engine for non x86_64 archs - RHBZ#1303846
+%ifnarch x86_64
+sed -i 's|engine("wiredTiger")|engine("mmapv1")|' src/mongo/db/storage/storage_options.h
+%endif
 
 
 %build
@@ -439,6 +444,9 @@ fi
 
 
 %changelog
+* Thu Mar 31 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.3-2
+- Make mmapv1 default storage engine for non x86_64 archs
+
 * Wed Mar 9 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.3-1
 - Upgrade to MongoDB 3.2.3
 - Added ability to have also C++ unit tests in test subpackage
