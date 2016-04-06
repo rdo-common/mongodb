@@ -16,8 +16,8 @@
 %bcond_with unit_tests
 
 Name:           mongodb
-Version:        3.2.3
-Release:        2%{?dist}
+Version:        3.2.4
+Release:        1%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -444,6 +444,9 @@ fi
 
 
 %changelog
+* Wed Apr 6 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.4-1
+- Upgrade to MongoDB 3.2.4
+
 * Thu Mar 31 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.3-2
 - Make mmapv1 default storage engine for non x86_64 archs
 
