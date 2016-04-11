@@ -17,7 +17,7 @@
 
 Name:           mongodb
 Version:        3.2.4
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -264,6 +264,10 @@ install -p -D -m 444 buildscripts/__init__.py  %{buildroot}%{_datadir}/%{pkg_nam
 cp -R     buildscripts/resmokeconfig     %{buildroot}%{_datadir}/%{pkg_name}-test/buildscripts/
 cp -R     buildscripts/resmokelib        %{buildroot}%{_datadir}/%{pkg_name}-test/buildscripts/
 cp -R     jstests                        %{buildroot}%{_datadir}/%{pkg_name}-test/
+# Remove executable flag from JS tests
+for file in `find %{buildroot}%{_datadir}/%{pkg_name}-test/jstests -type f`; do
+  chmod a-x $file
+done
 
 install -p -D -m 444 "%{SOURCE11}"       %{buildroot}%{_datadir}/%{pkg_name}-test/
 %endif
@@ -434,16 +438,20 @@ fi
 %if %{with tests}
 %files test
 %doc %{_datadir}/%{pkg_name}-test/README
+%defattr(-,%{pkg_name},root)
 %dir %attr(0755, %{pkg_name}, root) %{_datadir}/%{pkg_name}-test
 %dir %attr(0755, %{pkg_name}, root) %{_datadir}/%{pkg_name}-test/var
-%defattr(0444,%{pkg_name},root) 
-%{_datadir}/%{pkg_name}-test
-%attr(0755,-,-) %{_datadir}/%{pkg_name}-test/resmoke.py
+%{_datadir}/%{pkg_name}-test/jstests
+%{_datadir}/%{pkg_name}-test/buildscripts
+%{_datadir}/%{pkg_name}-test/resmoke.*
 %endif
 %endif
 
 
 %changelog
+* Mon Apr 11 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.4-2
+- Fixed permissions in test subpackage
+
 * Wed Apr 6 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.4-1
 - Upgrade to MongoDB 3.2.4
 
