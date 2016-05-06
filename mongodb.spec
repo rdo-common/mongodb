@@ -16,8 +16,8 @@
 %bcond_with unit_tests
 
 Name:           mongodb
-Version:        3.2.4
-Release:        2%{?dist}
+Version:        3.2.6
+Release:        1%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -449,6 +449,9 @@ fi
 
 
 %changelog
+* Fri May 6 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.6-1
+- Upgrade to MongoDB 3.2.6
+
 * Mon Apr 11 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.4-2
 - Fixed permissions in test subpackage
 
