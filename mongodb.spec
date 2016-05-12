@@ -17,7 +17,7 @@
 
 Name:           mongodb
 Version:        3.2.6
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -190,6 +190,7 @@ scons all \
         --nostrip \
         --ssl \
         --disable-warnings-as-errors \
+        --mmapv1=on \
 %ifarch x86_64
         --wiredtiger=on \
 %else
@@ -215,6 +216,7 @@ scons install \
         --ssl \
         --disable-warnings-as-errors \
         --prefix=%{buildroot}%{_prefix} \
+        --mmapv1=on \
 %ifarch x86_64
         --wiredtiger=on \
 %else
@@ -449,6 +451,9 @@ fi
 
 
 %changelog
+* Thu May 12 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.6-2
+- Enable to build mmapv1 storage engine
+
 * Fri May 6 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.6-1
 - Upgrade to MongoDB 3.2.6
 
