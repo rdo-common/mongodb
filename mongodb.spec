@@ -170,7 +170,7 @@ sed -i 's|engine("wiredTiger")|engine("mmapv1")|' src/mongo/db/storage/storage_o
 # Prepare variables for building
 cat > variables.list << EOF
 CCFLAGS="%{?optflags}"
-LINKFLAGS="%{?__global_ldflags}"
+LINKFLAGS="%{?__global_ldflags} -Wl,-z,noexecstack"
 CPPDEFINES="BOOST_OPTIONAL_USE_SINGLETON_DEFINITION_OF_NONE"
 
 EOF
@@ -225,6 +225,9 @@ scons install \
         --experimental-decimal-support=off \
         --variables-files=variables.list
 
+#TODO - create man page for mongobridge
+install -p -D -m 755 build/opt/mongo/tools/mongobridge %{buildroot}%{_bindir}
+
 mkdir -p %{buildroot}%{_sharedstatedir}/%{pkg_name}
 mkdir -p %{buildroot}%{_localstatedir}/log/%{pkg_name}
 mkdir -p %{buildroot}%{_localstatedir}/run/%{pkg_name}
@@ -260,7 +263,7 @@ install -p -m 644 debian/mongos.1     %{buildroot}%{_mandir}/man1/
 mkdir -p %{buildroot}%{_datadir}/%{pkg_name}-test
 mkdir -p %{buildroot}%{_datadir}/%{pkg_name}-test/var
 mkdir -p %{buildroot}%{_datadir}/%{pkg_name}-test/buildscripts
-install -p -D -m 555 buildscripts/resmoke.py   %{buildroot}%{_datadir}/%{pkg_name}-test/
+install -p -D -m 755 buildscripts/resmoke.py   %{buildroot}%{_datadir}/%{pkg_name}-test/
 install -p -D -m 444 buildscripts/__init__.py  %{buildroot}%{_datadir}/%{pkg_name}-test/buildscripts/
 
 cp -R     buildscripts/resmokeconfig     %{buildroot}%{_datadir}/%{pkg_name}-test/buildscripts/
@@ -408,6 +411,7 @@ fi
 %{_bindir}/mongo
 %{_bindir}/mongoperf
 %{_bindir}/mongosniff
+%{_bindir}/mongobridge
 
 %{_mandir}/man1/mongo.1*
 %{_mandir}/man1/mongoperf.1*
@@ -451,6 +455,10 @@ fi
 
 
 %changelog
+* Mon May 16 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.6-3
+- Disabled executable stack (since MongoDB 3.2.5)
+- Added mongobridge tool (used in test suites)
+
 * Thu May 12 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.6-2
 - Enable to build mmapv1 storage engine
 
