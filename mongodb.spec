@@ -17,7 +17,7 @@
 
 Name:           mongodb
 Version:        3.2.6
-Release:        2%{?dist}
+Release:        4%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -324,10 +324,16 @@ rm -Rf ./var
 
 
 %pre server
-getent group  %{pkg_name} >/dev/null || groupadd -r %{pkg_name}
-getent passwd %{pkg_name} >/dev/null || useradd -r -g %{pkg_name} -u 184 \
-  -d %{_sharedstatedir}/%{pkg_name} -s /sbin/nologin \
-  -c "MongoDB Database Server" %{pkg_name}
+getent group  %{pkg_name} >/dev/null || groupadd -f -g 184 -r %{pkg_name}
+if ! getent passwd %{pkg_name} >/dev/null ; then
+    if ! getent passwd 184 >/dev/null ; then
+      useradd -r -u 184 -g %{pkg_name} -d %{_sharedstatedir}/%{pkg_name} \
+      -s /sbin/nologin -c "MongoDB Database Server" %{pkg_name}
+    else
+      useradd -r -g %{pkg_name} -d %{_sharedstatedir}/%{pkg_name} \
+      -s /sbin/nologin -c "MongoDB Database Server" %{pkg_name}
+    fi
+fi
 exit 0
 
 
@@ -455,6 +461,10 @@ fi
 
 
 %changelog
+* Fri May 20 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.6-4
+- Fixed server %pre to comply guidelines
+- Using reserved GID for newly added group
+
 * Mon May 16 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.6-3
 - Disabled executable stack (since MongoDB 3.2.5)
 - Added mongobridge tool (used in test suites)
