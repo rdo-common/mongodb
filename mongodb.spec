@@ -16,8 +16,8 @@
 %bcond_with unit_tests
 
 Name:           mongodb
-Version:        3.2.6
-Release:        4%{?dist}
+Version:        3.2.7
+Release:        1%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -461,6 +461,9 @@ fi
 
 
 %changelog
+* Tue Jun 14 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.7-1
+- Upgrade to MongoDB 3.2.7
+
 * Fri May 20 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.6-4
 - Fixed server %pre to comply guidelines
 - Using reserved GID for newly added group
