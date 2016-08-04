@@ -16,7 +16,7 @@
 %bcond_with unit_tests
 
 Name:           mongodb
-Version:        3.2.7
+Version:        3.2.8
 Release:        1%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
@@ -461,6 +461,9 @@ fi
 
 
 %changelog
+* Thu Aug 04 2016 Marek Skalický <mskalick@redhat.com> - 3.2.8-1
+- Upgrade to MongoDB 3.2.8
+
 * Tue Jun 14 2016 Marek Skalicky <mskalick@redhat.com> - 3.2.7-1
 - Upgrade to MongoDB 3.2.7
 
