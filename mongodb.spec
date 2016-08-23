@@ -17,7 +17,7 @@
 
 Name:           mongodb
 Version:        3.2.8
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -461,6 +461,9 @@ fi
 
 
 %changelog
+* Tue Aug 23 2016 Richard Shaw <hobbes1069@gmail.com> - 3.2.8-2
+- Rebuild for updated yaml-cpp
+
 * Thu Aug 04 2016 Marek Skalický <mskalick@redhat.com> - 3.2.8-1
 - Upgrade to MongoDB 3.2.8
 
