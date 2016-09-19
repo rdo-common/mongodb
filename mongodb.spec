@@ -17,7 +17,7 @@
 
 Name:           mongodb
 Version:        3.2.8
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
 License:        AGPLv3 and zlib and ASL 2.0
@@ -42,6 +42,11 @@ Source11:       README
 # Enable building with system version of libraries
 # https://jira.mongodb.org/browse/SERVER-21353
 Patch0:         system-libs.patch
+
+# Fix world-readable .dbshell history file
+# https://jira.mongodb.org/browse/SERVER-25335
+Patch1:         CVE-2016-6494.patch
+
 
 BuildRequires:  gcc >= 4.8.2
 BuildRequires:  boost-devel >= 1.56
@@ -134,6 +139,7 @@ the MongoDB sources.
 %prep
 %setup -q -n mongodb-src-r%{version}
 %patch0 -p1
+%patch1 -p1
 
 # CRLF -> LF
 sed -i 's/\r//' README
@@ -461,6 +467,10 @@ fi
 
 
 %changelog
+* Mon Sep 19 2016 Marek Skalický <mskalick@redhat.com> - 3.2.8-3
+- Security fix for CVE-2016-6494
+  (fix world-readable .dbshell history file)
+
 * Tue Aug 23 2016 Richard Shaw <hobbes1069@gmail.com> - 3.2.8-2
 - Rebuild for updated yaml-cpp
 
